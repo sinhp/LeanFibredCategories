@@ -1,6 +1,6 @@
 [Proofs Verified with Lean4 (leanprover/lean4:v4.3.0-rc1)](https://github.com/sinhp/LeanHomotopyFrobenius/blob/master/lean-toolchain)
 
-# Lean4 Formalization Of The Theory Of Fibred Categories
+# Lean4 Formalization Of Fibred Categories
 
 This repository is a [Lean 4](https://github.com/leanprover/lean4) formalization of the theory of Fibred Categories. Fibred categories are one of the most important conceptual toolboxes of category theory and they have many application in category theory, algebraic geometry, categorical logic, and the semantics of programming languages. 
 
@@ -10,7 +10,7 @@ The project contains
 
 * **The Main Theory** to be upstreamed to mathlib: Lemmas that belong in existing mathlib files and background theories. Those are located in the `Mathlib` subfolder.
 
-* **Spec-Test Examples**: The formalization in Mathlib is often done at the most level of generality possible. Often it is implicitly assumed that one needs to trust that a formalization of a definition or theorem is correctly specified and does the right thing without inspecting all the hundreds/thousands of definitions and theorems which the theorem of our interest depends on. In this project we do not assume this: For the main theorems of the project, we provide a set of spec-test examples which are meant to be a set of simple examples that the reader can inspect and verify that the formalization does the right thing.
+* **Spec Test Examples**: The formalization in Mathlib is often done at the most level of generality possible. Often it is implicitly assumed that one needs to trust that a formalization of a definition or theorem is correctly specified and does the right thing without inspecting all the hundreds/thousands of definitions and theorems which the theorem of our interest depends on. In this project we do not assume this: For the main theorems of the project, we provide a set of spec-test examples which are meant to be a set of simple examples that the reader can inspect and verify that the formalization does the right thing.
 
 ### Spec-Test Examples
 
