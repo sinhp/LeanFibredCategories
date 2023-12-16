@@ -30,7 +30,7 @@ The following topics are under active development in LeanCamCombi.
 
 * Fibred Notion of Structured used to prove the Frobenius Theorem of Homotopy Type Theory in 
 
-- [A 2-categorical proof of Frobenius for fibrations defined from a generic point](https://arxiv.org/abs/2210.00078)
+> - Sina Hazratpour, Emily Riehl: [*A 2-categorical Proof of Frobenius for Fibrations Defined From a Generic Point*](https://arxiv.org/abs/2210.00078), *Accepted for publication in Mathematical Structures in Computer Science.* 
 
 * The Theory of Street Fibrations 
 
@@ -38,7 +38,7 @@ The following topics are under active development in LeanCamCombi.
 
 ### Resources 
 Chapter 2 of my PhD thesis: 
-- [A LOGICAL STUDY OF SOME 2-CATEGORICAL ASPECTS OF TOPOS THEORY](https://etheses.bham.ac.uk//id/eprint/9752/7/Hazratpour2019PhD.pdf)
+> - [A Logical Study of Some 2-categorical Aspects of Topos Theory, University of Birmingham](https://etheses.bham.ac.uk//id/eprint/9752/7/Hazratpour2019PhD.pdf)
 
 
 
