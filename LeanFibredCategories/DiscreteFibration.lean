@@ -3,8 +3,6 @@ Copyright (c) 2023 Sina Hazratpour. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sina Hazratpour
 -/
-
-
 import Mathlib.CategoryTheory.Category.Cat
 import Mathlib.CategoryTheory.Arrow
 import Mathlib.CategoryTheory.Opposites

@@ -10,11 +10,14 @@ The project contains
 
 * **The Main Theory** to be upstreamed to mathlib: Lemmas that belong in existing mathlib files and background theories. Those are located in the `Mathlib` subfolder.
 
+In `Fiber.Lean` we define and provide API for the type of fiber of a functor at a given point in the base. We give an instance of category structure for this type. We also provide API for 
+
+
 * **Spec Test Examples**: The formalization in Mathlib is often done at the most level of generality possible. Often it is implicitly assumed that one needs to trust that a formalization of a definition or theorem is correctly specified and does the right thing without inspecting all the hundreds/thousands of definitions and theorems which the theorem of our interest depends on. In this project we do not assume this: For the main theorems of the project, we provide a set of spec-test examples which are meant to be a set of simple examples that the reader can inspect and verify that the formalization does the right thing.
 
-### Spec-Test Examples
+### Spec Test Examples
 
-1. We prove that the codomain functor, defined as below,is a cocartesian fibration. 
+1. We prove that the codomain functor, defined as below, is a cocartesian fibration. 
     > `def Cod := Arrow.rightFunc (C:= C)`
 2. We prove that the domain functor, defined as below, is a cartesian fibration.
     > `def Dom := Arrow.leftFunc (C:= C)`

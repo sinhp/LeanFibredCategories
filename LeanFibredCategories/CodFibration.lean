@@ -3,8 +3,6 @@ Copyright (c) 2023 Sina Hazratpour. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sina Hazratpour
 -/
-
-
 import Mathlib.CategoryTheory.Category.Cat
 import Mathlib.CategoryTheory.Arrow
 import Mathlib.CategoryTheory.Opposites
@@ -35,22 +33,22 @@ namespace Codomain
 lemma cod_arrow {c: C} (e : Cod⁻¹ c) : Cod.obj e = c := e.eq
 
 @[simp]
-lemma cod_fiber_proj {c: C} {e : Cod⁻¹ c} : e.fiber.right = c := e.eq
+lemma cod_fiber_proj {c: C} {e : Cod⁻¹ c} : e.obj.right = c := e.eq
 
 @[simp]
 lemma cod_proj {c: C} (e : Cod⁻¹ c) :  (Cod.obj (e : Arrow C)) = (e : Arrow C).right := rfl
 
-instance instFiberOfArrow {c : C} : CoeOut (x ⟶ c) (Cod⁻¹ c) where
+instance instFiberOfArrow {x c : C} : CoeOut (x ⟶ c) (Cod⁻¹ c) where
   coe := fun e ↦ ⟨ ⟨x, c, e⟩, rfl⟩
 
 @[simp]
-def ArrowOf {c: C} (e : Cod⁻¹ c) : Arrow C := e.fiber.hom
+def ArrowOf {c: C} (e : Cod⁻¹ c) : Arrow C := e.obj.hom
 
 @[simp]
 lemma ArrowOf_right {c: C} (e : Cod⁻¹ c) : (ArrowOf e).right = c := e.2
 
-instance instArrowOfFiber : CoeDep (Cod⁻¹ c) (e : Cod⁻¹ c) ((e.fiber.left : C) ⟶ c) where
- coe :=  e.fiber.hom ≫ eqToHom (ArrowOf_right e)
+instance instArrowOfFiber (e : Cod⁻¹ c) : CoeDep (Cod⁻¹ c) (e) ((e.obj.left : C) ⟶ c) where
+ coe :=  e.obj.hom ≫ eqToHom (ArrowOf_right e)
 
 @[simp]
 lemma ArrowOf_coe_left {c: C} (e : x ⟶ c) : (ArrowOf (e : Cod⁻¹ c)).left = x := rfl
@@ -59,33 +57,32 @@ lemma ArrowOf_coe_left {c: C} (e : x ⟶ c) : (ArrowOf (e : Cod⁻¹ c)).left = 
 lemma ArrowOf_coe_right {c: C} (e : x ⟶ c) : (ArrowOf (e : Cod⁻¹ c)).right = c := rfl
 
 @[simp]
-def LiftOf {x c d : C} (f : c ⟶ d) (e : x ⟶ c) : Lift Cod f where
+def UnBasedLiftOf {x c d : C} (f : c ⟶ d) (e : x ⟶ c) : UnBasedLift Cod f where
   src := e -- coerced as ⟨e, rfl⟩
   tgt := e ≫ f -- coerced as `⟨e ≫ f, rfl⟩
   hom := ⟨𝟙 x, f, by simp_all only [Arrow.rightFunc_obj, Arrow.mk_right, Fib.coe_mk, Arrow.mk_left, Functor.id_obj, Functor.id_map,
     Arrow.mk_hom, id_comp]⟩ -- (𝟙,f) -- aesop generated proof
   eq := by aesop -- (𝟙,f).tgt = f
 
+/-- BasedLiftOf specifies a based lift for every morphism f : c ⟶ d and an arrow e with codomain c. -/
 @[simp]
-def BasedLiftOf {c d : C} (f : c ⟶ d) (e : Cod⁻¹ c) : BasedLift Cod f e ⟨(e: (e.fiber.left : C) ⟶ c) ≫ f, by rfl⟩ where
+def BasedLiftOf {c d : C} (f : c ⟶ d) (e : Cod⁻¹ c) : BasedLift Cod f e ⟨(e: (e.obj.left : C) ⟶ c) ≫ f, by rfl⟩ where
   hom := ⟨𝟙 _, eqToHom (ArrowOf_right e) ≫ f , by aesop⟩ -- (𝟙,f)
-  eq := by aesop -- (𝟙,f).tgt = f
+  eq := by simp -- (𝟙,f).tgt = f
 
 @[simp, aesop forward safe]
-lemma BasedLift.proj_right {c d : C} {f : c ⟶ d} {e : Cod⁻¹ c} {e' : Cod⁻¹ d} (g : BasedLift Cod f e e') : g.hom.right = eqToHom (e.eq) ≫ f ≫ (eqToHom (e'.eq).symm)  := by simp [← Category.assoc _ _ _, g.eq]
+lemma BasedLift.proj_eq_right {c d : C} {f : c ⟶ d} {e : Cod⁻¹ c} {e' : Cod⁻¹ d} (g : BasedLift Cod f e e') : g.hom.right = eqToHom (e.eq) ≫ f ≫ (eqToHom (e'.eq).symm)  := by simp [← assoc _ _ _, ← g.eq]
 
 @[simps]
-def CovLift {c d: C} (f : c ⟶ d) (e : Cod⁻¹ c) : CovLift Cod f e where
-  tgt := ⟨(e: (e.fiber.left : C) ⟶ c) ≫ f, by rfl⟩ -- e ≫ f
-  lift := BasedLiftOf f e
+def CoLift {c d: C} (f : c ⟶ d) (e : Cod⁻¹ c) : CoLift Cod f e where
+  tgt := ⟨(e: (e.obj.left : C) ⟶ c) ≫ f, by rfl⟩ -- e ≫ f
+  colift := BasedLiftOf f e
 
 @[simp]
-lemma CovLift_proj {c d: C} {f : c ⟶ d} {e : Cod⁻¹ c}  : (CovLift f e).tgt.fiber.right = d := rfl
+lemma CoLift_proj {c d: C} {f : c ⟶ d} {e : Cod⁻¹ c}  : (CoLift f e).tgt.obj.right = d := rfl
 
 /-- Every morphism in the base category has a cartesian lift with respect to the codomain functor. -/
-instance instCartLift {x c d : C} (f : c ⟶ d) (e : x ⟶ c) : CartesianLift (P:= Cod) f where
-  src := e
-  tgt := e ≫ f
+instance instCartBasedLift {x c d : C} (f : c ⟶ d) (e : x ⟶ c) : CartBasedLifts Cod f   where
   hom := ⟨𝟙 x, f, by simp_all only [Fib.coe_mk, Functor.id_obj, Functor.id_map, Category.id_comp]⟩  -- the proof aesop generated
   eq := by simp
   cart := by intro e'' g' u hu; use ⟨⟨g'.left, u, by aesop⟩, by aesop⟩; simp; refine ⟨by aesop, by intro v hv; ext; aesop; aesop⟩
