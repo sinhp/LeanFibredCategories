@@ -29,7 +29,7 @@ In `Fiber.Lean` we define and provide API for the type of fiber of a functor at 
 
 ### Content under development
 
-The following topics are under active development in LeanCamCombi.
+The following topics are under active development in `LeanHomotopyFrobenius`.
 
 * Fibred Notion of Structured used to prove the Frobenius Theorem of Homotopy Type Theory in 
 
