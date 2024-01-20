@@ -14,7 +14,7 @@ import Mathlib.CategoryTheory.Iso
 import Mathlib.CategoryTheory.Limits.Shapes.Pullbacks
 import Mathlib.CategoryTheory.Limits.Preserves.Basic
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Pullbacks
-import Frobenius.Fiber
+import LeanFibredCategories.Fiber
 
 
 universe u

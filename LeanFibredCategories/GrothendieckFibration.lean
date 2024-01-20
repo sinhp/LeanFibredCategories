@@ -3,8 +3,6 @@ Copyright (c) 2023 Sina Hazratpour. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sina Hazratpour
 -/
-
-
 import Mathlib.CategoryTheory.Category.Cat
 import Mathlib.CategoryTheory.Arrow
 import Mathlib.CategoryTheory.Opposites
@@ -17,28 +15,27 @@ import Frobenius.Fiber
 import Frobenius.CartesianLift
 
 
-
 universe u
 
 namespace CategoryTheory
-open Category Opposite
+open Category Opposite BasedLift CartesianBasedLift Fib
 
 variable {C E : Type*} [Category C] [Category E]
 
 
 /-- A Cloven fibration provides for every morphism `c ⟶ P x` in the base a cartesian lift in the total category. -/
-class Cloven (P : E ⥤ C) where
-lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d)  : CartLift (P:= P) f y
+class ClovenFibration (P : E ⥤ C) where
+lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : CartesianLift (P:= P) f y
 
 /-- An CoCloven fibration provides for every morphism `P x ⟶ c` in the base a cartesian lift in the total category. -/
-class CoCloven (P : E ⥤ C) where
-colift {c d : C} (f : c ⟶ d) (x : P⁻¹ c)  : CoCartLift (P:= P) f x
+class CoClovenFibration (P : E ⥤ C) where
+colift {c d : C} (f : c ⟶ d) (x : P⁻¹ c) : CoCartesianLift (P:= P) f x
 
-class isFibration (P : E ⥤ C) where
-lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : HasCartLift (P:= P) f y
+class Fibration (P : E ⥤ C) where
+lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : HasCartesianLift (P:= P) f y
 
-class isCoFibration (P : E ⥤ C) where
-colift {c d : C} (f : c ⟶ d) (x : P⁻¹ c) : HasCoCartLift (P:= P) f x
+class CoFibration (P : E ⥤ C) where
+colift {c d : C} (f : c ⟶ d) (x : P⁻¹ c) : HasCoCartesianLift (P:= P) f x
 --isOpFibration (P.op)
 
 class Transport (P : E ⥤ C) where
@@ -47,8 +44,11 @@ class Transport (P : E ⥤ C) where
 class CoTransport (P : E ⥤ C) where
   cotransport {c d : C} (f : c ⟶ d) (x : P⁻¹ c) : P⁻¹ d
 
-notation f " ⋆ " y  => Transport.transport f y
-notation x " ⋆ " f  => CoTransport.cotransport f x
+notation f " ⋆ " y  : 10 => Transport.transport f y
+notation x " ⋆ " f  : 10 => CoTransport.cotransport f x
+
+-- local infixl:50 " ⋆ " =>  fun f y ↦ Transport.transport f y
+-- local infixl:40 " ⋆ " =>  fun x f ↦ CoTransport.cotransport f x
 
 @[simp]
 lemma transport_proj {P : E ⥤ C}[Transport P] (f : c ⟶ d) (y : P⁻¹ d) : P.obj (f ⋆ y) = c := by simp
@@ -56,44 +56,43 @@ lemma transport_proj {P : E ⥤ C}[Transport P] (f : c ⟶ d) (y : P⁻¹ d) : P
 @[simp]
 lemma cotransport_proj {P : E ⥤ C}[CoTransport P] (f : c ⟶ d) (x : P⁻¹ c) : P.obj (x ⋆ f) = d := by simp
 
-#exit
-namespace Cloven
-
-section
-variable {P : E ⥤ C} [Cloven P]
+namespace ClovenFibration
+variable {P : E ⥤ C} [ClovenFibration P]
 
 @[simp]
 instance instTransport : Transport P where
-  transport := fun f x ↦ ⟨ (Cloven.lift f x).src , by simp only [Fib.proj]⟩
+  transport := fun f x ↦ ⟨(lift f x).src , by simp only [Fib.over]⟩
 
 @[simp]
 def Transport (f : c ⟶ d) : (P⁻¹ d) → (P⁻¹ c) := fun y ↦ f ⋆ y
 
 @[simp]
-def BasedLift (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y) ⟶[f] (y) := (lift f y).lift
+def BasedLiftOf (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y) ⟶[f] y := (lift f y).lift
 
 @[simp]
-instance {f : c ⟶ d} {y : P⁻¹ d} : isCartesianBasedLift f (BasedLift f y) := (lift f y).is_cart
+instance instCartesianBasedLift {f : c ⟶ d} {y : P⁻¹ d} : CartesianBasedLift (BasedLiftOf f y) := (lift f y).is_cart
 
 @[simp]
 def Hom (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y : E) ⟶ (y : E) := (lift f y).lift.hom
 
 @[simp]
-lemma TransportHom_proj (f : c ⟶ d) (y : P⁻¹ d) : P.map (Hom (P:= P) f y) = (eqToHom (transport_proj (P:= P) f y)) ≫ f ≫ eqToHom ((Fib.proj y).symm)   := by simp only [CoTransport, Fib.mk_coe, Hom, BasedLift.proj]
+lemma TransportHom_proj (f : c ⟶ d) (y : P⁻¹ d) : P.map (Hom (P:= P) f y) = (eqToHom (transport_proj (P:= P) f y)) ≫ f ≫ eqToHom ((Fib.over y).symm)   := by simp only [CoTransport, Fib.mk_coe, Hom, BasedLift.over_base]
 
 @[simp]
-instance CartesianLiftOf (f : c ⟶ d) (y : P⁻¹ d) : CartLift f y := (Cloven.lift f y)
-end
+instance CartesianLiftOf (f : c ⟶ d) (y : P⁻¹ d) : CartesianLift f y := (lift f y)
 
 @[simp]
-lemma transport_comp {f : c ⟶ d} {u : d ⟶ d'} {y : P⁻¹ d'} : ((f ≫ u) ⋆ y) ≅ f ⋆ (u ⋆ y) where
-  hom := _
-  inv := _
-  hom_inv_id := _
-  inv_hom_id := _
+lemma transport_comp {c d₁ d₂ : C} {f₁ : c ⟶ d₁} {f₂ : d₁ ⟶ d₂} {y : P⁻¹ d₂} : ((f₁ ≫ f₂) ⋆ y) ≅ f₁ ⋆ (f₂ ⋆ y) where
+  hom := gaplift (BasedLiftOf f₁ (f₂ ⋆ y)) (𝟙 c) (eqRebaseIdComp.invFun  (gaplift (BasedLiftOf f₂ y) f₁ (BasedLiftOf (f₁ ≫ f₂) y)))
+  inv := gaplift (BasedLiftOf (f₁ ≫ f₂) y) (𝟙 c) (eqRebaseIdComp.invFun ((BasedLiftOf f₁ (f₂ ⋆ y)) ≫[l] (BasedLiftOf f₂ y)))
+  hom_inv_id := by simp; rw [← comp_hom _ _, ← id_hom]; congr; simp; aesop--apply gaplift_uniq' (BasedLiftOf f₁ (f₂ ⋆ y)) _
+  inv_hom_id := sorry
 
 
-end Cloven
+#exit
+
+
+end ClovenFibration
 
 
 namespace CoCloven
@@ -107,9 +106,10 @@ instance instCoTransport : CoTransport P where
 
 @[simp]
 def CoTransport (f : c ⟶ d) : (P⁻¹ c) → (P⁻¹ d) := fun x ↦ x ⋆ f
+
 @[simp]
-def BasedLift (f : c ⟶ d) (x : P⁻¹ c) : x ⟶[f] (x ⋆ f) :=
-(colift f x).lift
+def BasedLiftOf (f : c ⟶ d) (x : P⁻¹ c) : x ⟶[f] (x ⋆ f) :=
+(colift f x).colift
 
 @[simp]
 instance {f : c ⟶ d} {x : P⁻¹ c} : isCoCartesianBasedLift f (BasedLift f x) := (colift f x).is_cart
