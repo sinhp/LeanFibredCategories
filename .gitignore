@@ -1,2 +1,5 @@
 /build
 /lake-packages/*
+/.vscode
+/.cache
+.DS_Store

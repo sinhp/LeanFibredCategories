@@ -10,7 +10,20 @@ import Mathlib.CategoryTheory.Opposites
 import Mathlib.CategoryTheory.Equivalence
 import Mathlib.CategoryTheory.EqToHom
 import Mathlib.CategoryTheory.Sigma.Basic
-import LeanFibredCategories.MathLib.Fiber
+import LeanFibredCategories.ForMathlib.Data.Fiber
+
+/-!
+# Basic
+
+We provide the category instance on the fibers of a functor.
+We show that for a functor `P`, the fiber of the opposite functor
+`P.op` are isomorphic to the opposites of the fiber categories of `P`.
+
+We provide the following notations:
+* `P ⁻¹ c` for the fiber of `P` at `c`.
+-/
+
+
 
 namespace CategoryTheory
 
@@ -61,7 +74,7 @@ lemma obj_over (x : P.op ⁻¹ (op c)) : P.obj (unop (x.1)) = c := by
 cases' x with e h
 simpa [Functor.op] using h
 
-/-- The fibres of the opposite functor `P.op` are in bijection to the the fibres of `P`.  -/
+/-- The fibres of the opposite functor `P.op` are in bijection with the the fibres of `P`.  -/
 @[simps]
 def equiv (c : C) : (P.op ⁻¹ (op c)) ≃ (P⁻¹ c) where
   toFun := fun x =>  (⟨unop x.1, by rw [obj_over] ⟩)
@@ -82,7 +95,8 @@ lemma unop_op_map  {c : C} {x y : (P.op) ⁻¹ (op c)} (f : x ⟶ y) : unop (P.o
 @[simp]
 lemma op_map_unop  {c : C} {x y : (P ⁻¹ c)ᵒᵖ} (f : x ⟶ y) : P.op.map (f.unop.1.op) = (P.map (f.unop.1)).op := rfl
 
-/-- The fiber categories of the opposite functor `P.op` are isomorphic to the opposites of the fiber categories of `P`. -/
+/-- The fiber categories of the opposite functor `P.op` are isomorphic
+to the opposites of the fiber categories of `P`. -/
 def Iso (P : E ⥤ C) (c : C) : Cat.of (P.op ⁻¹ (op c) ) ≅ Cat.of ((P⁻¹ c)ᵒᵖ)  where
   hom := {
     obj := fun x => op (⟨unop x.1, by rw [obj_over] ⟩)
