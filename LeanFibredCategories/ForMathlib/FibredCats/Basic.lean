@@ -23,8 +23,6 @@ We provide the following notations:
 * `P ⁻¹ c` for the fiber of `P` at `c`.
 -/
 
-
-
 namespace CategoryTheory
 
 open Category Opposite Fiber
@@ -38,7 +36,7 @@ variable {C E : Type*} [Category C] [Category E] {P : E ⥤ C}
 
 /-- The category structure on the fibers of a functor. -/
 @[simps]
-instance instCategoryFib {c : C} : Category (P ⁻¹ c) where
+instance instCategoryFiber {c : C} : Category (P ⁻¹ c) where
   Hom x y := { g : (x : E) ⟶ (y : E) // P.map g = eqToHom (over_eq x y) }
   id x := ⟨𝟙 (x : E), by simp only [Functor.map_id, eqToHom_refl]⟩
   comp g h := ⟨g.1 ≫ h.1, by simp only [Functor.map_comp, Fiber.over, eqToHom_trans]⟩

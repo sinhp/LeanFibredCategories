@@ -47,10 +47,9 @@ def tauto (e : E) : Fiber P (P e) := ⟨e, rfl⟩
 instance instTautoFib (e : E) : CoeDep (E) (e) (Fiber P (P e) ) where
 coe := tauto e
 
-@[simp]
 lemma tauto_over (e : E) : (tauto e : Fiber P (P e)).1 = e := rfl
 
-/-- Cast an element of a fiber along an equality of the basepoints. -/
+/-- Cast an element of a fiber along an equality of the base objects. -/
 @[simp]
 def cast (e : Fiber P c) (eq : c = d) : Fiber P d := ⟨e.1, by simp_all only [over]⟩
 
