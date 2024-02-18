@@ -21,7 +21,7 @@ set_option pp.coercions true
 
 namespace CategoryTheory
 
-open Category Opposite BasedLift CartesianBasedLift Fiber FiberCat
+open Category Opposite BasedLift Fiber FiberCat
 
 variable {C E : Type*} [Category C] [Category E]
 
@@ -59,7 +59,7 @@ def Transport (f : c ⟶ d) : (P⁻¹ d) → (P⁻¹ c) := fun y ↦ f ⋆ y
 @[simp]
 def basedLiftOf (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y) ⟶[f] y := (lift f y).based_lift
 
-instance instCartesianBasedLift {f : c ⟶ d} {y : P⁻¹ d} : CartesianBasedLift (basedLiftOf f y) := (lift f y).is_cart
+instance instCartesianBasedLift {f : c ⟶ d} {y : P⁻¹ d} : Cartesian (basedLiftOf f y) := (lift f y).is_cart
 
 @[simp]
 def homOf (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y : E) ⟶ (y : E) := (lift f y).based_lift.hom
@@ -73,7 +73,17 @@ instance CartLiftOf (f : c ⟶ d) (y : P⁻¹ d) : CartLift f y := lift f y
 
 namespace FiberCat
 
-def ofBasedLiftHom {c d : C} (f : c ⟶ d) (x : P⁻¹ c) (y : P⁻¹ d) (h : x ⟶[f] y) : x ⟶ f ⋆ y := sorry
+def ofBasedLiftHom {c d : C} (f : c ⟶ d) (x : P⁻¹ c) (y : P⁻¹ d) (g : x ⟶[f] y) :
+x ⟶ f ⋆ y where
+  val := gaplift (basedLiftOf f y) (𝟙 c) (g.cast (id_comp f).symm)
+  property := by simp_all only [basedLiftOf, over_base, id_comp, eqToHom_trans]
+
+def equivFiberCatHomBasedLift {c d : C} (f : c ⟶ d) (x : P⁻¹ c) (y : P⁻¹ d) :
+(x ⟶[f] y) ≃  (x ⟶ f ⋆ y) where
+  toFun := fun g => ⟨gaplift (basedLiftOf f y) (𝟙 c) (BasedLift.cast (id_comp f).symm g), by aesop⟩
+  invFun := fun g => ((BasedLift.ofFiberHom g) ≫[l] basedLiftOf f y).cast (id_comp f)
+
+
 
 end FiberCat
 

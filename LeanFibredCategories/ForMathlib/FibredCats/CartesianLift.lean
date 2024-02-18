@@ -164,17 +164,19 @@ lemma tauto_comp_hom {e e' e'' : E} {g : e ⟶ e'} {g' : e' ⟶ e''} : (tauto (P
 
 lemma comp_tauto_hom {x y z : E} {f : P.obj x ⟶ P.obj y} {l : Fiber.tauto x ⟶[f] (Fiber.tauto y)} {g : y ⟶ z} : (l ≫[l] tauto g).hom = l.hom ≫ g := rfl
 
-/-- Casting a based-lift along an equality of the base morphisms induces
-an equivalence of the based-lifts. -/
-@[simps]
-def cast {c d : C} {f f' : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (h : f = f') :
-(x ⟶[f] y) ≃ (x ⟶[f'] y) where
-  toFun := fun g ↦ ⟨g.hom, by rw [←h, g.over]⟩
-  invFun := fun g ↦ ⟨g.hom, by rw [h, g.over]⟩
-  left_inv := by intro g; simp
-  right_inv := by intro g; simp
+@[simps!]
+def cast {c d : C} {f f' : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (h : f = f') (g : x ⟶[f] y) :
+ x ⟶[f'] y := ⟨g.hom, by rw [←h, g.over]⟩
 
-lemma cast_hom {c d : C} {f f' : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} {g : x ⟶[f] y} {h : f = f'} : (cast h g).hom = g.hom := rfl
+/-- Casting a based-lift along an equality of the base morphisms induces an equivalence of the based-lifts. -/
+@[simps!]
+def castEquiv {c d : C} {f f' : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (h : f = f') : (x ⟶[f] y) ≃ (x ⟶[f'] y) where
+  toFun := fun g ↦ g.cast h
+  invFun := fun g ↦ g.cast h.symm
+  left_inv := by intro g; simp [cast]
+  right_inv := by intro g; simp [cast]
+
+-- lemma cast_hom {c d : C} {f f' : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} {g : x ⟶[f] y} {h : f = f'} : (cast h g).hom = g.hom := rfl
 
 lemma eq_id_of_hom_eq_id {c : C} {x : P⁻¹ c} {g : x ⟶[𝟙 c] x} :
 (g.hom = 𝟙 x.1) ↔ (g = id x) := by
@@ -191,7 +193,6 @@ g₁ ≫[l] g₂ = cast h₁ g := by
   intro h
   rw [← comp_hom, h, cast_hom]
 
-
 @[simp]
 lemma id_comp_cast {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d}
 {g : x ⟶[f] y} : id x  ≫[l] g = (cast ((id_comp f).symm : f = 𝟙 c ≫ f)) g := by
@@ -199,15 +200,15 @@ lemma id_comp_cast {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d}
 
 /-- Casting equivalence along postcomposition with the identity morphism. -/
 @[simp]
-def castIdComp  {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} : (x ⟶[(𝟙 c) ≫ f] y) ≃ (x ⟶[f] y)  := cast (id_comp f)
+def castIdComp  {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} : (x ⟶[(𝟙 c) ≫ f] y) ≃ (x ⟶[f] y)  := castEquiv (id_comp f)
 
 /-- Casting equivalence along precomposition with the identity morphism. -/
 @[simp]
-def castCompId  {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} : (x ⟶[f ≫ (𝟙 d) ] y)  ≃ (x ⟶[f] y) := cast (comp_id f)
+def castCompId  {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} : (x ⟶[f ≫ (𝟙 d) ] y) ≃ (x ⟶[f] y) := castEquiv (comp_id f)
 
 @[simp]
 def castAssoc {c' c d d' : C} {u' : c' ⟶ c} {f : c ⟶ d} {u : d ⟶ d'} {x : P⁻¹ c'}
-{y : P⁻¹ d'} : (x ⟶[(u' ≫ f) ≫ u] y) ≃ (x ⟶[u' ≫ (f ≫ u)] y) := cast (Category.assoc u' f u)
+{y : P⁻¹ d'} : (x ⟶[(u' ≫ f) ≫ u] y) ≃ (x ⟶[u' ≫ (f ≫ u)] y) := castEquiv (Category.assoc u' f u)
 
 @[simps]
 def castOfeqToHom {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} :
@@ -221,13 +222,13 @@ def castOfeqToHom {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} :
 of the base morphisms. -/
 @[simp]
 lemma assoc {c' c d d' : C} {f₁ : c' ⟶ c} {f₂ : c ⟶ d} {f₃ : d ⟶ d'} {w : P⁻¹ c'} {x : P⁻¹ c} {y : P⁻¹ d} {z : P⁻¹ d'} (g₁ : w ⟶[f₁] x) (g₂ : x ⟶[f₂] y) (g₃ : y ⟶[f₃] z) :  ((g₁ ≫[l] g₂) ≫[l] g₃) = castAssoc.invFun (g₁ ≫[l] g₂ ≫[l] g₃) := by
-  simp only [comp, Category.assoc, castAssoc, cast]
+  simp only [comp]; ext; simp [cast_hom, castEquiv]
 
 @[simp]
 lemma assoc_inv {c' c d d' : C} {f₁ : c' ⟶ c} {f₂ : c ⟶ d} {f₃ : d ⟶ d'} {w : P⁻¹ c'}
 {x : P⁻¹ c} {y : P⁻¹ d} {z : P⁻¹ d'} (g₁ : w ⟶[f₁] x) (g₂ : x ⟶[f₂] y) (g₃ : y ⟶[f₃] z) :
 castAssoc.toFun ((g₁ ≫[l] g₂) ≫[l] g₃) =  (g₁ ≫[l] (g₂ ≫[l] g₃)) := by
-  simp only [comp, Category.assoc, castAssoc, cast]
+  simp only [comp]; ext; simp [cast_hom, castEquiv]
 
 lemma tauto_comp_cast {e e' e'' : E} {g : e ⟶ e'} {g' : e' ⟶ e''} : tauto (g ≫ g') = cast (P.map_comp g g').symm (tauto g ≫[l] tauto g') := rfl
 
@@ -360,7 +361,8 @@ gaplift (g:= g) (u' ≫ u) (BasedLift.castAssoc.invFun g'') := by
 /-- The identity based-lift is cartesian. -/
 instance instId {x : P⁻¹ c} : Cartesian (id x) where
   uniq_lift := fun c' z u g' => {
-    default := ⟨castCompId g', by simp_all only [BasedLift.comp, castCompId, cast_apply_hom, BasedLift.id, comp_id]⟩
+    default := ⟨castCompId g', by
+                  simp_all only [comp, castCompId, id, comp_id]; rfl⟩
     uniq := by aesop
   }
 
@@ -430,21 +432,21 @@ lemma gapmap_uniq' (g : x ⟶ y) (gcart : CartMor P g) {c : C} {z : P⁻¹ c}
   let g' := v₂' ≫[l] tauto g
   have : P.map v₁ ≫ P.map g = P.map v₂ ≫ P.map g  := by rw [← P.map_comp, ← P.map_comp, hv]
   have hv₁ : v₁'.hom ≫ g = g'.hom := by simp_all only [Fiber.tauto_over, tauto_hom, BasedLift.comp]
-  have hv₂' : (BasedLift.cast hv'.symm v₂').hom ≫ g = (BasedLift.cast  (this.symm) g').hom := by simp only [Fiber.tauto_over, tauto_hom, BasedLift.comp, cast_apply_hom]
+  have hv₂' : (BasedLift.cast hv'.symm v₂').hom ≫ g = (BasedLift.cast  (this.symm) g').hom := by simp only [Fiber.tauto_over, tauto_hom, BasedLift.comp, castEquiv_apply_hom]; rfl
   have H' := (gcart (P.map v₁) (BasedLift.cast (this.symm) g')).unique hv₁ hv₂'
   injection H'
 
 /-- `cart_id e` says that the identity morphism `𝟙 e` is cartesian. -/
 lemma cart_id (e : E) : CartMor P (𝟙 e) := fun z u g' ↦ by
-  use ⟨(BasedLift.cast ((whisker_eq u (P.map_id e)).trans (comp_id _))).toFun g', by aesop⟩
+  use ⟨ g'.cast ((whisker_eq u (P.map_id e)).trans (comp_id _)), by aesop⟩
   constructor
-  simp_all only [Fiber.tauto, Equiv.toFun_as_coe, cast_apply_hom, comp_id]
+  simp only [Fiber.tauto, Equiv.toFun_as_coe, castEquiv_apply_hom, comp_id]; rfl
   intro v hv; ext; aesop
 
 /-- Cartesian morphisms are closed under composition. -/
 @[simp]
 lemma cart_comp : StableUnderComposition (CartMor P) := fun x y z f g hf hg w u g' => by
-  cases' (hg (u ≫ P.map f) ((BasedLift.cast ((u ≫= P.map_comp f g).trans (Category.assoc u _ _).symm )).toFun g')) with lg hlg
+  cases' hg (u ≫ P.map f) (g'.cast ((u ≫= P.map_comp f g).trans (Category.assoc u _ _).symm )) with lg hlg
   cases' (hf u lg) with lf hlf
   use lf
   constructor
@@ -456,11 +458,14 @@ lemma cart_comp : StableUnderComposition (CartMor P) := fun x y z f g hf hg w u 
 /-- Every isomorphism is cartesian. -/
 @[simp]
 lemma cart_iso {x y : E} (g : x ⟶ y) [IsIso g] : CartMor P g := fun z u g' => by
-  use (BasedLift.cast (by simp)).toFun (g' ≫[l] BasedLift.tauto (inv g))
-  simp
-  intro v hv
-  congr! 1
-  aesop
+  use (g' ≫[l] BasedLift.tauto (inv g)).cast (by simp only [Functor.map_inv, Category.assoc,
+    IsIso.hom_inv_id, comp_id])
+  constructor
+  · simp only [Fiber.tauto, BasedLift.comp, tauto_hom, cast_hom, Category.assoc, IsIso.inv_hom_id,
+    comp_id]
+  · intro v hv
+    congr! 1
+    aesop
 
 /-- The property CartMor respect isomorphisms -/
 lemma cart_iso_closed : RespectsIso (CartMor P) where
@@ -483,8 +488,8 @@ intro w' u k
 have pbw : P.map g' ≫ P.map f = P.map f' ≫ P.map g := by rw [← P.map_comp, ← P.map_comp, pb.w]
 have pbw' : P.map k.hom ≫ P.map f  = (u ≫ P.map f') ≫ P.map g := by rw [Category.assoc]; rw [u ≫= pbw.symm]; simp only [Fiber.tauto_over, over_base, eqToHom_refl, comp_id, id_comp, Category.assoc]
 have hk : P.map k.hom = u ≫ P.map g' := by simp only [Fiber.tauto_over, over_base, eqToHom_refl, comp_id, id_comp, Category.assoc]
-let v' :  w' ⟶ y := gapmap g gcart (u ≫ P.map f') (BasedLift.cast pbw' (BasedLift.cast (hk.symm) k ≫[l] tauto f))
-have : k.hom ≫ f = v' ≫ g := by simp [v', gapmap_property]
+let v' :  w' ⟶ y := gapmap g gcart (u ≫ P.map f') (BasedLift.cast pbw' (k.cast (hk.symm) ≫[l] tauto f))
+have : k.hom ≫ f = v' ≫ g := by simp [v', gapmap_property,]
 let pbc₁ : PullbackCone f g := PullbackCone.mk k.hom v' this
 let pb₁ := pb |> IsPullback.flip |> isLimit
 let pb₂ := isLimitPullbackConeMapOfIsLimit P (f:= f) (g:= g) pb.w.symm (pb |> IsPullback.flip |> isLimit)
