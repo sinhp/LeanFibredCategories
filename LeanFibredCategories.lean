@@ -1,3 +1,4 @@
 import LeanFibredCategories.ForMathlib.Data.Fiber
 import LeanFibredCategories.ForMathlib.FibredCats.Basic
 import LeanFibredCategories.ForMathlib.FibredCats.CartesianLift
+import LeanFibredCategories.ForMathlib.FibredCats.VerticalLift

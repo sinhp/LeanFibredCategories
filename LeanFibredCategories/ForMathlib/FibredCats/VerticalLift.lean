@@ -10,7 +10,7 @@ import LeanFibredCategories.ForMathlib.FibredCats.CartesianLift
 
 namespace CategoryTheory
 
-open Category Functor BasedLift CartesianBasedLift
+open Category Functor BasedLift
 
 namespace Vertical
 
