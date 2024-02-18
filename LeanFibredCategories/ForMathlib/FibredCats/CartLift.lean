@@ -30,7 +30,7 @@ We provide various useful constructors:
   based-lifts, respectively.
 * We can cast a based-lift along an equality of the base morphisms using the equivalence `BasedLift.cast`.
 
-There are also typeclasses `BasedLift.Cartesian` and `BasedLift.CoCartesian`
+There are also typeclasses `CartesianBasedLift` and `CoCartesianBasedLift`
 carrying data witnessing that a given based-lift is cartesian and cocartesian, respectively.
 
 For a functor `P : E ⥤ C`, we provide the class `CartMor` of cartesian morphisms in `E`. The type `CartMor P`is defined in terms of the predicate `isCartesianMorphism`.
@@ -194,7 +194,7 @@ g₁ ≫[l] g₂ = cast h₁ g := by
 
 @[simp]
 lemma id_comp_cast {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d}
-{g : x ⟶[f] y} : id x  ≫[l] g = (cast ((id_comp f).symm : f = 𝟙 c ≫ f)) g := by
+{g : x ⟶[f] y} : BasedLift.id x  ≫[l] g = (BasedLift.cast ((id_comp f).symm : f = 𝟙 c ≫ f)) g := by
   simp_all only [comp, id, id_comp]; rfl
 
 /-- Casting equivalence along postcomposition with the identity morphism. -/
@@ -286,41 +286,42 @@ def Inv (g : x ⟶[≅f] y) : (y ⟶[≅ inv f] x) where
 
 end IsoBasedLift
 
-namespace BasedLift
-
 /-- A lift `g : x ⟶[f] y` over a base morphism `f` is cartesian if for every
 morphism `u` in the base and every lift `g' : x ⟶[u ≫ f] z` over the composite
  `u ≫ f`, there is a unique morphism `l : y ⟶[u] z` over `u` such that
  `l ≫ g = g'`. -/
-class Cartesian {P : E ⥤ C} {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) where
+class CartesianBasedLift {P : E ⥤ C} {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) where
 uniq_lift : ∀ ⦃c' : C⦄ ⦃z : P⁻¹ c'⦄ (u : c' ⟶ c) (g' : z ⟶[u ≫ f]  y), Unique { l :  z ⟶[u] x // (BasedLift.comp l g) = g' }
 
 /-- A morphism `g : x ⟶[f] y` over `f` is cocartesian if for all morphisms `u` in the base and `g' : x ⟶[f ≫ u] z` over the composite `f ≫ u`, there is a unique morphism `l : y ⟶[u] z` over `u` such that `g ≫ l = g'`. -/
-class CoCartesian {P : E ⥤ C} {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) where
+class CoCartesianBasedLift {P : E ⥤ C} {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) where
 uniq_colift : ∀ ⦃d' : C⦄ ⦃z : P⁻¹ d'⦄ (u : d ⟶ d') (g' : x ⟶[f ≫ u]  z), Unique { l :  y ⟶[u] z // (BasedLift.comp g l) = g' }
 
-variable {P : E ⥤ C} {c' c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} {x' : P⁻¹ c'} (g : x ⟶[f] y) [Cartesian (P:= P) g]
+namespace CartesianBasedLift
+
+open BasedLift
+
+variable {P : E ⥤ C} {c' c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} {x' : P⁻¹ c'} (g : x ⟶[f] y) [CartesianBasedLift (P:= P) g]
 
 /-- `gaplift g u g'` is the canonical map from a lift `g' : x' ⟶[u ≫ f] y` to a
 cartesian lift `g` of `f`. -/
 def gaplift (u : c' ⟶ c) (g' : x' ⟶[u ≫ f] y) : x' ⟶[u] x :=
-(Cartesian.uniq_lift (P:= P) (f:= f) (g:= g) (z:= x') u g').default.val
+(CartesianBasedLift.uniq_lift (P:= P) (f:= f) (g:= g) (z:= x') u g').default.val
 
 /-- A variant of `gaplift` for `g' : x' ⟶[f'] y` with casting along `f' = u ≫ f` baked into the definition. -/
-def gaplift' (u : c' ⟶ c) {f' : c' ⟶ d} (g' : x' ⟶[f'] y) (h : f' = u ≫ f) :
-x' ⟶[u] x :=
-(Cartesian.uniq_lift (P:= P) (f:= f) (g:= g) (z:= x') u (cast h g')).default.val
+def gaplift' (u : c' ⟶ c) {f' : c' ⟶ d} (g' : x' ⟶[f'] y) (h : f' = u ≫ f) : x' ⟶[u] x :=
+(CartesianBasedLift.uniq_lift (P:= P) (f:= f) (g:= g) (z:= x') u (BasedLift.cast h g')).default.val
 
 @[simp]
 lemma gaplift_cast (u : c' ⟶ c) {f' : c' ⟶ d} (g' : x' ⟶[f'] y)
-(h : f' = u ≫ f) : gaplift' g u g' h = gaplift g u (cast h g') := by
+(h : f' = u ≫ f) : gaplift' g u g' h = gaplift g u (BasedLift.cast h g') := by
   rfl
 
 /-- The composition of the gap lift and the cartesian lift is the given lift -/
 @[simp]
 lemma gaplift_property (u : c' ⟶ c) (g' : x' ⟶[u ≫ f] y) :
 ((gaplift g u g') ≫[l] g) = g' :=
-(Cartesian.uniq_lift (P:= P) (f:= f) (g:= g) (z:= x') u g').default.property
+(CartesianBasedLift.uniq_lift (P:= P) (f:= f) (g:= g) (z:= x') u g').default.property
 
 /-- A variant of the gaplift property for equality of the underlying morphisms. -/
 @[simp]
@@ -330,7 +331,7 @@ lemma gaplift_hom_property (u : c' ⟶ c) (g' : x' ⟶[u ≫ f] y) : (gaplift g 
 @[simp]
 lemma gaplift_uniq {u : c' ⟶ c} (g' : x' ⟶[u ≫ f] y) (v : x' ⟶[u] x)
 (hv : (v ≫[l] g) = g') : v = gaplift (g:= g) u g' := by
-  simp [gaplift]; rw [← (Cartesian.uniq_lift (P:= P) (f:= f) (g:= g) (z:= x') u g').uniq ⟨v,hv⟩]
+  simp [gaplift]; rw [← (CartesianBasedLift.uniq_lift (P:= P) (f:= f) (g:= g) (z:= x') u g').uniq ⟨v,hv⟩]
 
 /-- A variant of the  uniqueness lemma. -/
 @[simp]
@@ -351,21 +352,21 @@ variable {g}
 `u : c' ⟶ c` is the gap lift of the composition `u' ≫ u`. -/
 @[simp]
 lemma gaplift_comp {u : c' ⟶ c} {u' : c'' ⟶ c'} {x'' : P⁻¹ c''}
-{g' : x' ⟶[u ≫ f] y} [Cartesian (P:= P) (f:= u ≫ f) g']
+{g' : x' ⟶[u ≫ f] y} [CartesianBasedLift (P:= P) (f:= u ≫ f) g']
 {g'' : x'' ⟶[u' ≫ u ≫ f] y} :
 (gaplift  (g:= g') u' g'') ≫[l] (gaplift (g:= g) u g') =
 gaplift (g:= g) (u' ≫ u) (BasedLift.castAssoc.invFun g'') := by
   refine gaplift_uniq (f:= f) g (castAssoc.invFun g'') ((gaplift (g:= g') u' g'') ≫[l] (gaplift (g:= g) u g')) (by rw [BasedLift.assoc]; simp only [gaplift_property])
 
 /-- The identity based-lift is cartesian. -/
-instance instId {x : P⁻¹ c} : Cartesian (id x) where
+instance instId {x : P⁻¹ c} : CartesianBasedLift (P:= P) (BasedLift.id x) where
   uniq_lift := fun c' z u g' => {
     default := ⟨castCompId g', by simp_all only [BasedLift.comp, castCompId, cast_apply_hom, BasedLift.id, comp_id]⟩
     uniq := by aesop
   }
 
 /-- Cartesian based-lifts are closed under composition. -/
-instance instComp  {c d d' : C} {f₁ : c ⟶ d} {f₂ : d ⟶ d'} {x : P⁻¹ c} {y : P⁻¹ d} {z : P⁻¹ d'} (g₁ : x ⟶[f₁] y) [Cartesian g₁] (g₂ : y ⟶[f₂] z) [Cartesian g₂] : Cartesian (g₁ ≫[l] g₂) where
+instance instComp  {c d d' : C} {f₁ : c ⟶ d} {f₂ : d ⟶ d'} {x : P⁻¹ c} {y : P⁻¹ d} {z : P⁻¹ d'} (g₁ : x ⟶[f₁] y) [CartesianBasedLift (P:= P) g₁] (g₂ : y ⟶[f₂] z) [CartesianBasedLift (P:= P) g₂] : CartesianBasedLift (P:= P) (g₁ ≫[l] g₂) where
   uniq_lift := fun c' w u g' => {
     default := ⟨gaplift g₁ u (gaplift g₂ (u ≫ f₁) (castAssoc.invFun g')), by rw [← BasedLift.assoc_inv, gaplift_property g₁ _ _, gaplift_property g₂ _ _]; simp⟩
     uniq := by intro ⟨l, hl⟩; simp; apply gaplift_uniq; apply gaplift_uniq; rw [BasedLift.assoc]; simp; exact hl}
@@ -373,7 +374,7 @@ instance instComp  {c d d' : C} {f₁ : c ⟶ d} {f₂ : d ⟶ d'} {x : P⁻¹ c
 /-- The cancellation lemma for cartesian based-lifts. If  `g₂ : y ⟶[f₂] z` and
 `g₁ ≫[l] g₂ : z ⟶[f₂] z` are cartesian then `g₁` is cartesian. -/
 @[simp]
-lemma instCancel {g₁ : x ⟶[f₁] y} {g₂ : y ⟶[f₂] z} [Cartesian g₂] [Cartesian (g₁ ≫[l] g₂)] : Cartesian g₁ where
+lemma instCancel {g₁ : x ⟶[f₁] y} {g₂ : y ⟶[f₂] z} [CartesianBasedLift (P:= P) g₂] [CartesianBasedLift (g₁ ≫[l] g₂)] : CartesianBasedLift g₁ where
   uniq_lift := fun c' z' u₁ g₁' => {
     default := {
       val := gaplift (g:= g₁ ≫[l]  g₂) u₁ (castAssoc (g₁' ≫[l] g₂))
@@ -386,7 +387,7 @@ lemma instCancel {g₁ : x ⟶[f₁] y} {g₂ : y ⟶[f₂] z} [Cartesian g₂] 
                apply gaplift_uniq (g₁ ≫[l] g₂) (castAssoc (g₁' ≫[l] g₂)) l (this)
   }
 
-end BasedLift
+end CartesianBasedLift
 
 /-- A morphism is cartesian if the gap map is unique. -/
 def isCartesianMorphism {P : E ⥤ C} {x y : E} (g : x ⟶ y) : Prop :=
@@ -398,7 +399,7 @@ def CartMor (P : E ⥤ C) : MorphismProperty E :=  fun _ _ g => isCartesianMorph
 
 section CartMor
 
-open MorphismProperty BasedLift
+open MorphismProperty CartesianBasedLift BasedLift
 
 variable {P : E ⥤ C} {x y : E}
 
@@ -516,14 +517,14 @@ variable {P : E ⥤ C} {c d : C}
 `CartLifts P f src tgt` consists of the based-lifts of `f` with
 the source `src` and the target `tgt` which are cartesian with respect to `P`. -/
 class CartBasedLifts (P : E ⥤ C) {c d : C} (f : c ⟶ d) (src : P⁻¹ c) (tgt : P⁻¹ d) extends BasedLift P f src tgt where
-is_cart : BasedLift.Cartesian toBasedLift
+is_cart : CartesianBasedLift (P:= P) toBasedLift
 
 instance instCoeHomOfCartBasedLift {c d : C} (f : c ⟶ d) (src : P⁻¹ c) (tgt : P⁻¹ d) : CoeOut (CartBasedLifts P f src tgt) (src.1 ⟶ tgt.1) where
   coe := fun l ↦ l.1.hom
 
 /-- The type of cartesian lifts of a morphism `f` with fixed target. -/
 class CartLift (f : c ⟶ d) (y : P⁻¹ d) extends Lift P f y where
-is_cart : BasedLift.Cartesian based_lift
+is_cart : CartesianBasedLift (P:= P) lift
 
 def CartLift.homOf {f : c ⟶ d} {y : P⁻¹ d} (g : CartLift f y) : (g.src : E) ⟶ y := g.based_lift.hom
 
@@ -531,7 +532,7 @@ instance instCoeLiftOfCartLift {c d : C} {f : c ⟶ d} {y : P⁻¹ d} : Coe (Car
   coe := fun l ↦ l.toLift
 
 class CoCartLift (f : c ⟶ d) (x : P⁻¹ c) extends CoLift P f x where
-is_cart : BasedLift.CoCartesian based_colift
+is_cart : CoCartesianBasedLift (P:= P) colift
 
 /--Mere existence of a cartesian lift with fixed target. -/
 def HasCartLift (f : c ⟶ d) (y : P⁻¹ d) := Nonempty (CartLift (P:= P) f y)

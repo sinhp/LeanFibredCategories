@@ -12,9 +12,16 @@ import Mathlib.CategoryTheory.Grothendieck
 import LeanFibredCategories.ForMathlib.FibredCats.Basic
 import LeanFibredCategories.ForMathlib.FibredCats.CartesianLift
 
+set_option pp.explicit false
+--set_option pp.notation true
+set_option trace.simps.verbose true
+--set_option trace.Meta.synthInstance.instances true
+--set_option trace.Meta.synthInstance true
+set_option pp.coercions true
+
 namespace CategoryTheory
 
-open Category Opposite BasedLift CartesianBasedLift Fiber
+open Category Opposite BasedLift CartesianBasedLift Fiber FiberCat
 
 variable {C E : Type*} [Category C] [Category E]
 
@@ -28,10 +35,11 @@ lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : HasCartLift (P:= P) f y
 class Transport (P : E ⥤ C) where
   transport {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : P⁻¹ c
 
-notation f " ⋆ " y  : 10 => Transport.transport f y
+--notation f " ⋆ " y  : 10 => Transport.transport f y
+scoped infixr:80 " ⋆ "  => Transport.transport -- NtS: infix right ensures that `f ⋆ y ⋆ z` is parsed as `f ⋆ (y ⋆ z)`
 
 @[simp]
-lemma transport_proj {P : E ⥤ C} [Transport P] (f : c ⟶ d) (y : P⁻¹ d) :
+lemma transport_over {P : E ⥤ C} [Transport P] (f : c ⟶ d) (y : P⁻¹ d) :
 P.obj (f ⋆ y) = c := by
   simp [Fiber.over]
 
@@ -42,6 +50,8 @@ variable {P : E ⥤ C} [ClovenFibration P]
 @[simp]
 instance instTransport : Transport P where
   transport := fun f x ↦ ⟨(lift f x).src , by simp only [Fiber.over]⟩
+
+example (f : c ⟶ d) (g : d ⟶ e) (y : P⁻¹ e) : f ⋆ g ⋆ y = f ⋆ (g ⋆ y) := rfl
 
 @[simp]
 def Transport (f : c ⟶ d) : (P⁻¹ d) → (P⁻¹ c) := fun y ↦ f ⋆ y
@@ -55,18 +65,31 @@ instance instCartesianBasedLift {f : c ⟶ d} {y : P⁻¹ d} : CartesianBasedLif
 def homOf (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y : E) ⟶ (y : E) := (lift f y).based_lift.hom
 
 @[simp]
-lemma TransportHom_proj (f : c ⟶ d) (y : P⁻¹ d) :
-P.map (homOf (P:= P) f y) = (eqToHom (transport_proj (P:= P) f y)) ≫ f ≫ eqToHom ((Fiber.over y).symm) := by
-simp only [Fiber.mk_coe, homOf, BasedLift.over_base]
+lemma homOf_over (f : c ⟶ d) (y : P⁻¹ d) :
+P.map (homOf (P:= P) f y) = (eqToHom (transport_over (P:= P) f y)) ≫ f ≫ eqToHom ((Fiber.over y).symm) := by
+  simp only [Fiber.mk_coe, homOf, BasedLift.over_base]
 
 instance CartLiftOf (f : c ⟶ d) (y : P⁻¹ d) : CartLift f y := lift f y
 
+namespace FiberCat
+
+def ofBasedLiftHom {c d : C} (f : c ⟶ d) (x : P⁻¹ c) (y : P⁻¹ d) (h : x ⟶[f] y) : x ⟶ f ⋆ y := sorry
+
+end FiberCat
+
+
+--set_option trace.Meta.synthInstance true in
 @[simp]
 lemma transport_id {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x) ≅ x where
-  hom := _
-  inv := _
-  hom_inv_id := _
-  inv_hom_id := _
+  hom := gaplift' (BasedLift.id x) (𝟙 c) (basedLiftOf (𝟙 c) x) (by simp only [comp_id])
+  inv := gaplift' (basedLiftOf (𝟙 c) x) (𝟙 c) (BasedLift.id x) (by simp only [id_comp])
+  hom_inv_id := by
+    simp [FiberCat.comp_coe]; simp only [← BasedLift.id_hom]; apply hom_comp_cast (h₁ := (id_comp (𝟙 c)).symm).mpr ; rw [gaplift_comp];
+    --change
+    --rw [← cast_hom (h:= (id_comp (𝟙 x)).symm)];  --apply comp_hom_aux.mp;
+  inv_hom_id := sorry
+
+#exit
 
 @[simp]
 lemma transport_comp {c d₁ d₂ : C} {f₁ : c ⟶ d₁} {f₂ : d₁ ⟶ d₂} {y : P⁻¹ d₂} : ((f₁ ≫ f₂) ⋆ y) ≅ f₁ ⋆ (f₂ ⋆ y) where

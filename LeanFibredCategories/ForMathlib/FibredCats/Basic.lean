@@ -35,11 +35,14 @@ namespace FiberCat
 variable {C E : Type*} [Category C] [Category E] {P : E ⥤ C}
 
 /-- The category structure on the fibers of a functor. -/
-@[simps]
 instance instCategoryFiber {c : C} : Category (P ⁻¹ c) where
   Hom x y := { g : (x : E) ⟶ (y : E) // P.map g = eqToHom (over_eq x y) }
   id x := ⟨𝟙 (x : E), by simp only [Functor.map_id, eqToHom_refl]⟩
   comp g h := ⟨g.1 ≫ h.1, by simp only [Functor.map_comp, Fiber.over, eqToHom_trans]⟩
+
+lemma id_coe {c : C} (x : P⁻¹ c) : (𝟙 x : x ⟶ x).val = 𝟙 (x : E) := rfl
+
+lemma comp_coe {c : C} {x y z : P⁻¹ c} (f : x ⟶ y) (g : y ⟶ z) : (f ≫ g).1 = f.1 ≫ g.1 := rfl
 
 @[simp, aesop forward safe]
 lemma fiber_hom_over {c: C} (x y : P⁻¹ c) (g : x ⟶ y) : P.map g.1 = eqToHom (Fiber.over_eq x y) := g.2
