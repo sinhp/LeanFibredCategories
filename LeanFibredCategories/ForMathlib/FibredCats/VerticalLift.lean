@@ -21,21 +21,18 @@ namespace CategoryTheory
 
 open Category Functor Fiber BasedLift
 
---universe u v
+variable {C E : Type*} [Category C] [Category E]
 
-variable {C E : Type} [Category C] [Category E] (P : E ⥤ C)
-
-abbrev Vert := Σ c, P⁻¹ c
+abbrev Vert (P : E ⥤ C) := Σ c, P⁻¹ c
 
 -- inductive VertHom {P : E ⥤ C} : (Vert P) → (Vert P) → Type max v u
 --   | mk : ∀ {c : C} {X Y : P⁻¹ c}, (X ⟶ Y) → VertHom (⟨c, X⟩ : Vert P) (⟨c, Y⟩ : Vert P)
 
 -- def VertHom {P : E ⥤ C} (x y : Vert P) := Σ (h : x.1 = y.1), x.2 ⟶[𝟙 x.1] (y.2.cast h.symm)
 
+variable {P : E ⥤ C}
+
 instance instCategoryVert : Category (Vert P) := inferInstance
-
-
-variable {P}
 
 /-- A based-lift of the identity generates a morphism in `Vert P. -/
 def vertHomOfBasedLift {X Y : Vert P} (h : X.1 = Y.1)
@@ -72,8 +69,8 @@ def basedLiftOfVertHom {X Y : Vert P} (f : X ⟶ Y) :
 have : X.1 = Y.1 := base_eq_of_vert_hom f
 X.2 ⟶[𝟙 X.1] Y.2.cast this.symm := ⟨basedLiftOfVertHomAux f, by cases f; simp⟩
 
-
-@[simps!]
+--@[aesop forward safe]
+set_option trace.simps.verbose true in
 def basedLiftOfFiberHom {c : C} {x y : P⁻¹ c} (f : x ⟶ y) : x ⟶[𝟙 c] y :=
 ⟨f.1, by simp [f.2]⟩
 
@@ -82,7 +79,7 @@ def basedLiftOfFiberHom {c : C} {x y : P⁻¹ c} (f : x ⟶ y) : x ⟶[𝟙 c] y
 def equivFiberHomBasedLift {c : C} {x y : P⁻¹ c} : (x ⟶ y) ≃ (x ⟶[𝟙 c] y) where
   toFun := fun g ↦ basedLiftOfFiberHom g
   invFun := fun g ↦ g
-  left_inv := by intro g; simp
+  left_inv := by intro g; simp [basedLiftOfFiberHom]
   right_inv := by intro g; aesop
 
 @[simps!]
@@ -118,19 +115,19 @@ def vertCartIso {P : E ⥤ C} {c: C} {e e' : P⁻¹ c} (g : e ⟶ e')
     rw [← comp_id (𝟙 e)]
     let g' : e' ⟶[𝟙 c] e := basedLiftOfFiberHom (gaplift (basedLiftOfFiberHom g) (𝟙 c) (id e' ≫[l] id e'))
     have : ((basedLiftOfFiberHom g ≫[l] g') ≫[l] basedLiftOfFiberHom g) = (BasedLift.id e ≫[l] BasedLift.id e) ≫[l](basedLiftOfFiberHom g) := by
-      simp only [BasedLift.comp, basedLiftOfFiberHom_hom, BasedLift.id, comp_id,
+      simp only [BasedLift.comp, BasedLift.id, comp_id,
       Category.assoc, id_comp, BasedLift.mk.injEq]
-      have H : ( (gaplift (basedLiftOfFiberHom g) (𝟙 c) (id e' ≫[l] id e')) ≫[l] basedLiftOfFiberHom g) = (BasedLift.id e' ≫[l] BasedLift.id e') := by apply gaplift_property
-      have H' := comp_hom'.mp H
-      simp only [BasedLift.comp, BasedLift.id, comp_id, basedLiftOfFiberHom_hom] at H'
-      rw [H']; simp only [comp_id]
+      have : ( (gaplift (basedLiftOfFiberHom g) (𝟙 c) (id e' ≫[l] id e')) ≫[l] basedLiftOfFiberHom g) = (BasedLift.id e' ≫[l] BasedLift.id e') := by apply gaplift_property
+      simp only [basedLiftOfFiberHom] at *
+      aesop
     have H := gaplift_uniq' (basedLiftOfFiberHom g) ((basedLiftOfFiberHom g) ≫[l] g') (BasedLift.id e ≫[l] BasedLift.id e) (this)
     apply FiberCat.hom_ext
     dsimp
-    have H' := comp_hom'.mp H
-    simp only [basedLiftOfFiberHom_hom, BasedLift.comp, BasedLift.id, comp_id] at H'
-    simp only [comp_id, H']
-    simp_all only [BasedLift.comp, basedLiftOfFiberHom_hom, BasedLift.id, comp_id, id_comp, FiberCat.fiber_id_obj]
-    exact H'
+    aesop
+    -- have H' := comp_hom'.mp H
+    -- simp only [BasedLift.comp, BasedLift.id, comp_id] at H'
+    -- simp only [comp_id, H']
+    -- simp_all only [BasedLift.comp, BasedLift.id, comp_id, id_comp, FiberCat.fiber_id_obj]
+    -- exact H'
 
 end CategoryTheory
