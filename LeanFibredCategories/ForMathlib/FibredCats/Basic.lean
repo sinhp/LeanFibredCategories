@@ -42,10 +42,12 @@ instance instCategoryFiber {c : C} : Category (P ⁻¹ c) where
 
 lemma id_coe {c : C} (x : P⁻¹ c) : (𝟙 x : x ⟶ x).val = 𝟙 (x : E) := rfl
 
-lemma comp_coe {c : C} {x y z : P⁻¹ c} (f : x ⟶ y) (g : y ⟶ z) : (f ≫ g).1 = f.1 ≫ g.1 := rfl
+lemma comp_coe {c : C} {x y z : P⁻¹ c} (f : x ⟶ y) (g : y ⟶ z) : (f ≫ g).1 = f.1 ≫ g.1 :=
+rfl
 
 @[simp, aesop forward safe]
-lemma fiber_hom_over {c: C} (x y : P⁻¹ c) (g : x ⟶ y) : P.map g.1 = eqToHom (Fiber.over_eq x y) := g.2
+lemma fiber_hom_over {c: C} (x y : P⁻¹ c) (g : x ⟶ y) :
+P.map g.1 = eqToHom (Fiber.over_eq x y) := g.2
 
 /-- The forgetful functor from a fiber to the domain category. -/
 @[simps]
@@ -53,7 +55,8 @@ def forget {c : C} : (P⁻¹ c) ⥤ E where
   obj := fun x => x
   map := @fun x y f => f.1
 
-lemma fiber_comp_obj {c: C} (x y z : P⁻¹ c) (f: x ⟶ y) (g: y ⟶ z) : (f ≫ g).1 = f.1 ≫ g.1 := rfl
+lemma fiber_comp_obj {c: C} (x y z : P⁻¹ c) (f: x ⟶ y) (g: y ⟶ z) : (f ≫ g).1 = f.1 ≫ g.1 :=
+rfl
 
 @[simp]
 lemma fiber_comp_obj_eq {c: C} {x y z : P⁻¹ c} {f: x ⟶ y} {g: y ⟶ z} {h : x ⟶ z} : (f ≫ g = h) ↔  f.1 ≫ g.1  = h.1 := by

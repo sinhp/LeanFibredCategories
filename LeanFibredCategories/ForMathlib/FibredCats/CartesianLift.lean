@@ -128,11 +128,6 @@ as a morphism in the fiber `P⁻¹ c` .-/
 instance instCoeFiberHom {c : C} {x y : P⁻¹ c} : Coe (x ⟶[𝟙 c] y) (x ⟶ y) where
   coe := fun f ↦ ⟨ f.hom , by simp [f.over]⟩
 
-/-- `BasedLift.ofFiberHom` regards a morphism in the fiber category `P⁻¹ c`
-as a based-lift of the identity morphism of `c`. -/
-@[simps]
-def ofFiberHom {c : C} {x y : P⁻¹ c} (f : x ⟶ y) : x ⟶[𝟙 c] y := ⟨f.1, by simp [f.2]⟩
-
 /-- The identity based-lift. -/
 @[simp]
 def id (x : P⁻¹ c) : BasedLift P (𝟙 c) x x := ⟨𝟙 _, by simp⟩

@@ -25,7 +25,7 @@ open Category Opposite BasedLift Fiber FiberCat
 
 variable {C E : Type*} [Category C] [Category E]
 
-/-- A Cloven fibration provides for every morphism `c ⟶ P x` in the base a cartesian lift in the total category. -/
+/-- A Cloven fibration provides for every morphism `c ⟶ d` in the base and `y : P⁻¹ d` a cartesian lift in the total category. -/
 class ClovenFibration (P : E ⥤ C) where
 lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : CartLift (P:= P) f y
 
@@ -73,20 +73,18 @@ instance CartLiftOf (f : c ⟶ d) (y : P⁻¹ d) : CartLift f y := lift f y
 
 namespace FiberCat
 
-def ofBasedLiftHom {c d : C} (f : c ⟶ d) (x : P⁻¹ c) (y : P⁻¹ d) (g : x ⟶[f] y) :
-x ⟶ f ⋆ y where
+def ofBasedLiftHom {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) : x ⟶ f ⋆ y where
   val := gaplift (basedLiftOf f y) (𝟙 c) (g.cast (id_comp f).symm)
   property := by simp_all only [basedLiftOf, over_base, id_comp, eqToHom_trans]
 
 def equivFiberCatHomBasedLift {c d : C} (f : c ⟶ d) (x : P⁻¹ c) (y : P⁻¹ d) :
 (x ⟶[f] y) ≃  (x ⟶ f ⋆ y) where
-  toFun := fun g => ⟨gaplift (basedLiftOf f y) (𝟙 c) (BasedLift.cast (id_comp f).symm g), by aesop⟩
+  toFun := fun g => ofBasedLiftHom g
   invFun := fun g => ((BasedLift.ofFiberHom g) ≫[l] basedLiftOf f y).cast (id_comp f)
-
-
+  left_inv := by
+    intro g; ext; simp;
 
 end FiberCat
-
 
 --set_option trace.Meta.synthInstance true in
 @[simp]
