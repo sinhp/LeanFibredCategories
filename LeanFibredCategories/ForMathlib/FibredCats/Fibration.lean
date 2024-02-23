@@ -94,19 +94,23 @@ def equivFiberCatHomBasedLift {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹
   right_inv := by
     intro g; simp only [basedLiftOfFiberHom]; cases g; sorry -- use the uniqueness of the gap lift
 
+
+#check CategoryTheory.Epi.left_cancellation
+
 -- def equivTransportId {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x) ≅ x where
 --   hom := gaplift' (BasedLift.id x) (𝟙 c) (basedLiftOf (𝟙 c) x) (by simp only [comp_id])
 --   inv := equivFiberCatHomBasedLift (id x)
 --   hom_inv_id := by ext;
 --   inv_hom_id := _
+
 /-- Transporting along the identity morphism creates an isomorphic copy
 of the transported object. -/
 def equivTransportId {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x) ≅ x := by
 -- The proof idea: use the fact that vertical cartesian morphisms are isos.
-haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x)) := by sorry
-apply vertCartIso; sorry
-
-
+haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x)) := by
+  simp
+  infer_instance
+apply vertCartIso (g:= (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x))
 
 --set_option trace.Meta.synthInstance true in
 -- @[simp]

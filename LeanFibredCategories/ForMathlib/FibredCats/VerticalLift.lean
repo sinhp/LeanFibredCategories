@@ -74,20 +74,26 @@ set_option trace.simps.verbose true in
 def basedLiftOfFiberHom {c : C} {x y : P⁻¹ c} (f : x ⟶ y) : x ⟶[𝟙 c] y :=
 ⟨f.1, by simp [f.2]⟩
 
+/-- Coercing a based-lift `x ⟶[𝟙 c] y` of the identity morphism `𝟙 c`
+to a morphism `x ⟶ y` in the fiber `P⁻¹ c`. -/
+@[simps]
+instance instCoeFiberHom {c : C} {x y : P⁻¹ c} : Coe (x ⟶[𝟙 c] y) (x ⟶ y) where
+  coe := fun f ↦ ⟨ f.hom , by simp [f.over]⟩
+
 /-- The bijection between the hom-type of the fiber P⁻¹ c and the based-lifts of the identity morphism of c. -/
 @[simps!]
 def equivFiberHomBasedLift {c : C} {x y : P⁻¹ c} : (x ⟶ y) ≃ (x ⟶[𝟙 c] y) where
   toFun := fun g ↦ basedLiftOfFiberHom g
   invFun := fun g ↦ g
   left_inv := by intro g; simp [basedLiftOfFiberHom]
-  right_inv := by intro g; aesop
+  right_inv := by intro g; rfl
 
 @[simps!]
 def equivVertHomBasedLift {c : C} {x y : P⁻¹ c} : ((⟨c, x⟩ : Vert P) ⟶ ⟨c, y⟩) ≃ (x ⟶[𝟙 c] y) where
   toFun := fun g ↦ basedLiftOfVertHom g
   invFun := fun g ↦ vertHomOfBasedLift rfl g
   left_inv := by intro g; cases g; aesop
-  right_inv := by intro g; aesop
+  right_inv := by intro g; rfl
 
 
 /-- The bijection between the type of the isomporphisms in the fiber P⁻¹ c and the iso-based-lifts of the identity morphism of c. -/

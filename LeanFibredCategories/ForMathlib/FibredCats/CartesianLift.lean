@@ -122,12 +122,6 @@ instance instCoeTautoBasedLift {e e' : E} {g : e ⟶ e'} :
 CoeDep (e ⟶ e') (g) (Fiber.tauto e  ⟶[P.map g] Fiber.tauto e') where
   coe := tauto g
 
-/-- Regarding a based-lift `x ⟶[𝟙 c] y` of the identity morphism `𝟙 c`
-as a morphism in the fiber `P⁻¹ c` .-/
-@[simp]
-instance instCoeFiberHom {c : C} {x y : P⁻¹ c} : Coe (x ⟶[𝟙 c] y) (x ⟶ y) where
-  coe := fun f ↦ ⟨ f.hom , by simp [f.over]⟩
-
 /-- The identity based-lift. -/
 @[simp]
 def id (x : P⁻¹ c) : BasedLift P (𝟙 c) x x := ⟨𝟙 _, by simp⟩
