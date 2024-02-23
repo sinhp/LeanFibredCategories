@@ -57,46 +57,55 @@ example (f : c ⟶ d) (g : d ⟶ e) (y : P⁻¹ e) : f ⋆ g ⋆ y = f ⋆ (g �
 @[simp]
 def Transport (f : c ⟶ d) : (P⁻¹ d) → (P⁻¹ c) := fun y ↦ f ⋆ y
 
+/-- The lift of a morphism `f` ending at `y`. -/
 --@[simp]
-def basedLiftOf (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y) ⟶[f] y := (lift f y).based_lift
+def basedLift (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y) ⟶[f] y := (lift f y).based_lift
 
-instance instCartesianBasedLift {f : c ⟶ d} {y : P⁻¹ d} : Cartesian (basedLiftOf f y) :=
+/-- The lift `(f ⋆ y) ⟶[f] y` is cartesian. -/
+instance instCartesianBasedLift {f : c ⟶ d} {y : P⁻¹ d} : Cartesian (basedLift f y) :=
 (lift f y).is_cart
 
 @[simp]
-def homOf (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y : E) ⟶ (y : E) := (lift f y).based_lift.hom
+def basedLiftHom (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y : E) ⟶ (y : E) := (lift f y).based_lift.hom
 
 @[simp]
 lemma homOf_over (f : c ⟶ d) (y : P⁻¹ d) :
-P.map (homOf (P:= P) f y) =
+P.map (basedLiftHom f y) =
 (eqToHom (transport_over (P:= P) f y)) ≫ f ≫ eqToHom ((Fiber.over y).symm) := by
-  simp only [Fiber.mk_coe, homOf, BasedLift.over_base]
+  simp only [Fiber.mk_coe, basedLiftHom, BasedLift.over_base]
 
 instance CartLiftOf (f : c ⟶ d) (y : P⁻¹ d) : CartLift f y := lift f y
 
 @[simp]
 def fiberHomOfBasedLiftHom {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) : x ⟶ f ⋆ y where
-  val := gaplift (basedLiftOf f y) (𝟙 c) (g.cast (id_comp f).symm)
-  property := by simp_all only [basedLiftOf, over_base, id_comp, eqToHom_trans]
-
+  val := gaplift (basedLift f y) (𝟙 c) (g.cast (id_comp f).symm)
+  property := by simp_all only [basedLift, over_base, id_comp, eqToHom_trans]
 
 def basedLiftOfFiberHom' {c : C} {x y : P⁻¹ c} (f : x ⟶ y) : x ⟶[𝟙 c] y :=
 ⟨f.1, by simp [f.2]⟩
 
+@[simps!]
 def equivFiberCatHomBasedLift {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} :
 (x ⟶[f] y) ≃ (x ⟶ f ⋆ y) where
   toFun g := fiberHomOfBasedLiftHom g
-  invFun g := (basedLiftOfFiberHom g ≫[l] basedLiftOf f y).cast (id_comp f)
+  invFun g := (basedLiftOfFiberHom g ≫[l] basedLift f y).cast (id_comp f)
   left_inv := by
     intro g; ext; dsimp; simp [basedLiftOfFiberHom, gaplift_hom_property]
   right_inv := by
     intro g; simp only [basedLiftOfFiberHom]; cases g; sorry -- use the uniqueness of the gap lift
 
-lemma transport_id {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x) ≅ x where
-  hom := gaplift' (BasedLift.id x) (𝟙 c) (basedLiftOf (𝟙 c) x) (by simp only [comp_id])
-  inv := equivFiberCatHomBasedLift (id x)
-  hom_inv_id := _
-  inv_hom_id := _
+-- def equivTransportId {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x) ≅ x where
+--   hom := gaplift' (BasedLift.id x) (𝟙 c) (basedLiftOf (𝟙 c) x) (by simp only [comp_id])
+--   inv := equivFiberCatHomBasedLift (id x)
+--   hom_inv_id := by ext;
+--   inv_hom_id := _
+/-- Transporting along the identity morphism creates an isomorphic copy
+of the transported object. -/
+def equivTransportId {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x) ≅ x := by
+-- The proof idea: use the fact that vertical cartesian morphisms are isos.
+haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x)) := by sorry
+apply vertCartIso; sorry
+
 
 
 --set_option trace.Meta.synthInstance true in

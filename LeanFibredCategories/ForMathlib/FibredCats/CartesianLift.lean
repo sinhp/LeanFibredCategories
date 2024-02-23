@@ -289,7 +289,8 @@ morphism `u` in the base and every lift `g' : x ⟶[u ≫ f] z` over the composi
  `u ≫ f`, there is a unique morphism `l : y ⟶[u] z` over `u` such that
  `l ≫ g = g'`. -/
 class Cartesian {P : E ⥤ C} {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) where
-uniq_lift : ∀ ⦃c' : C⦄ ⦃z : P⁻¹ c'⦄ (u : c' ⟶ c) (g' : z ⟶[u ≫ f]  y), Unique { l :  z ⟶[u] x // (BasedLift.comp l g) = g' }
+uniq_lift : ∀ ⦃c' : C⦄ ⦃z : P⁻¹ c'⦄ (u : c' ⟶ c) (g' : z ⟶[u ≫ f]  y),
+Unique {l :  z ⟶[u] x // (BasedLift.comp l g) = g'}
 
 /-- A morphism `g : x ⟶[f] y` over `f` is cocartesian if for all morphisms `u` in the base and `g' : x ⟶[f ≫ u] z` over the composite `f ≫ u`, there is a unique morphism `l : y ⟶[u] z` over `u` such that `g ≫ l = g'`. -/
 class CoCartesian {P : E ⥤ C} {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) where
@@ -325,12 +326,12 @@ lemma gaplift_hom_property (u : c' ⟶ c) (g' : x' ⟶[u ≫ f] y) : (gaplift g 
 /-- The uniqueness part of the universal property of the gap lift. -/
 @[simp]
 lemma gaplift_uniq {u : c' ⟶ c} (g' : x' ⟶[u ≫ f] y) (v : x' ⟶[u] x)
-(hv : (v ≫[l] g) = g') : v = gaplift (g:= g) u g' := by
+(hv : v ≫[l] g = g') : v = gaplift (g:= g) u g' := by
   simp [gaplift]; rw [← (Cartesian.uniq_lift (P:= P) (f:= f) (g:= g) (z:= x') u g').uniq ⟨v,hv⟩]
 
 /-- A variant of the  uniqueness lemma. -/
 @[simp]
-lemma gaplift_uniq' {u : c' ⟶ c} (v : x' ⟶[u] x) (v' : x' ⟶[u] x) (hv : (v ≫[l] g) = v' ≫[l] g) : v = v' := by
+lemma gaplift_uniq' {u : c' ⟶ c} (v : x' ⟶[u] x) (v' : x' ⟶[u] x) (hv : v ≫[l] g = v' ≫[l] g) : v = v' := by
   rw [gaplift_uniq g (v' ≫[l] g) v hv]; symm; apply gaplift_uniq; rfl
 
 /-- The gaplift of any cartesian based-lift with respect to itself is the identity. -/
@@ -370,7 +371,7 @@ instance instComp  {c d d' : C} {f₁ : c ⟶ d} {f₂ : d ⟶ d'} {x : P⁻¹ c
 /-- The cancellation lemma for cartesian based-lifts. If  `g₂ : y ⟶[f₂] z` and
 `g₁ ≫[l] g₂ : z ⟶[f₂] z` are cartesian then `g₁` is cartesian. -/
 @[simp]
-lemma instCancel {g₁ : x ⟶[f₁] y} {g₂ : y ⟶[f₂] z} [Cartesian g₂] [Cartesian (g₁ ≫[l] g₂)] : Cartesian g₁ where
+lemma instCancel {c d d' : C} {f₁ : c ⟶ d} {f₂ : d ⟶ d'} {x : P⁻¹ c} {y : P⁻¹ d} {z : P⁻¹ d'} {g₁ : x ⟶[f₁] y} {g₂ : y ⟶[f₂] z} [Cartesian g₂] [Cartesian (g₁ ≫[l] g₂)] : Cartesian g₁ where
   uniq_lift := fun c' z' u₁ g₁' => {
     default := {
       val := gaplift (g:= g₁ ≫[l]  g₂) u₁ (castAssoc (g₁' ≫[l] g₂))
@@ -382,6 +383,13 @@ lemma instCancel {g₁ : x ⟶[f₁] y} {g₂ : y ⟶[f₂] z} [Cartesian g₂] 
                simp
                apply gaplift_uniq (g₁ ≫[l] g₂) (castAssoc (g₁' ≫[l] g₂)) l (this)
   }
+
+instance instCast {c d : C} {f f' : c ⟶ d} (h : f = f') {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) [Cartesian g] : Cartesian (g.cast h) where
+  uniq_lift := fun c' z u g' => {
+    default := ⟨g.gaplift' u g' (u ≫= h.symm), by aesop⟩
+    uniq := by intro l; cases l; sorry
+  }
+
 
 end BasedLift
 
