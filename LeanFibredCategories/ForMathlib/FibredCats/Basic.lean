@@ -25,7 +25,7 @@ We provide the following notations:
 
 namespace CategoryTheory
 
-open Category Opposite Fiber
+open Category Opposite Functor Fiber
 
 /-- The fiber of a functor at a given object in the base cateogry. -/
 abbrev FiberCat {C E : Type*} [Category C] [Category E] (P : E ⥤ C) (c : C) := Fiber P.obj c
@@ -55,11 +55,12 @@ def forget {c : C} : (P⁻¹ c) ⥤ E where
   obj := fun x => x
   map := @fun x y f => f.1
 
-lemma fiber_comp_obj {c: C} (x y z : P⁻¹ c) (f: x ⟶ y) (g: y ⟶ z) : (f ≫ g).1 = f.1 ≫ g.1 :=
-rfl
+lemma fiber_comp_obj {c: C} (x y z : P⁻¹ c) (f: x ⟶ y) (g: y ⟶ z) :
+(f ≫ g).1 = f.1 ≫ g.1 := rfl
 
 @[simp]
-lemma fiber_comp_obj_eq {c: C} {x y z : P⁻¹ c} {f: x ⟶ y} {g: y ⟶ z} {h : x ⟶ z} : (f ≫ g = h) ↔  f.1 ≫ g.1  = h.1 := by
+lemma fiber_comp_obj_eq {c: C} {x y z : P⁻¹ c} {f: x ⟶ y} {g: y ⟶ z} {h : x ⟶ z} :
+(f ≫ g = h) ↔  f.1 ≫ g.1  = h.1 := by
   constructor
   · intro H; cases H; rfl
   · intro H; cases f; cases g; cases h; simp at H; subst H; rfl
@@ -70,6 +71,12 @@ lemma fiber_id_obj {c: C} (x : P⁻¹ c) : (𝟙 x : x ⟶ x).val = 𝟙 (x : E)
 /- Two morphisms in a fiber P⁻¹ c are equal if their underlying morphisms in E are equal. -/
 lemma hom_ext {c : C} {x y : P⁻¹ c} {f g : x ⟶ y} (h : f.1 = g.1) : f = g := by
   cases f; cases g; simp at h; subst h; rfl
+
+@[simps]
+lemma is_iso {c : C} {x y : P⁻¹ c} (f : x ⟶ y) : IsIso f ↔ IsIso f.1 :=
+  ⟨
+    fun h ↦ (asIso f) |> forget.mapIso |> IsIso.of_iso, fun h ↦ ⟨⟨⟨inv f.1, by simp⟩, by simp⟩⟩
+  ⟩
 
 namespace Op
 
@@ -83,8 +90,8 @@ simpa [Functor.op] using h
 def equiv (c : C) : (P.op ⁻¹ (op c)) ≃ (P⁻¹ c) where
   toFun := fun x =>  (⟨unop x.1, by rw [obj_over] ⟩)
   invFun := fun x => ⟨op x.1 , by simp only [Functor.op_obj, unop_op, Fiber.over]⟩
-  left_inv := by intro x; simp
-  right_inv := by intro x; simp
+  left_inv := by intro x; rfl
+  right_inv := by intro x; rfl
 
 /-- The fibres of the opposite functor `P.op` are isomorphic
 to the the fibres of `P`.  -/

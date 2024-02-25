@@ -71,6 +71,7 @@ X.2 ⟶[𝟙 X.1] Y.2.cast this.symm := ⟨basedLiftOfVertHomAux f, by cases f; 
 
 --@[aesop forward safe]
 set_option trace.simps.verbose true in
+@[simp]
 def basedLiftOfFiberHom {c : C} {x y : P⁻¹ c} (f : x ⟶ y) : x ⟶[𝟙 c] y :=
 ⟨f.1, by simp [f.2]⟩
 
@@ -110,7 +111,7 @@ def isoVertBasedLiftEquiv {c : C} {x y : P⁻¹ c} : (x ≅ y) ≃ (x ⟶[≅(�
   right_inv := by intro α; dsimp
 
 /-- Vertical cartesian morphisms are isomorphism. -/
---@[simps]
+@[simps!]
 def vertCartIso {P : E ⥤ C} {c: C} {e e' : P⁻¹ c} (g : e ⟶ e')
 [Cartesian (basedLiftOfFiberHom g)] : e ≅ e' where
   hom := g

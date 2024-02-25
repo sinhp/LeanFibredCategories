@@ -278,7 +278,7 @@ end IsoBasedLift
 
 namespace BasedLift
 
-/-- A lift `g : x ⟶[f] y` over a base morphism `f` is cartesian if for every
+/-- A based-lift `g : x ⟶[f] y` over a base morphism `f` is cartesian if for every
 morphism `u` in the base and every lift `g' : x ⟶[u ≫ f] z` over the composite
  `u ≫ f`, there is a unique morphism `l : y ⟶[u] z` over `u` such that
  `l ≫ g = g'`. -/
@@ -541,8 +541,6 @@ def HasCartLift (f : c ⟶ d) (y : P⁻¹ d) := Nonempty (CartLift (P:= P) f y)
 def HasCoCartLift (f : c ⟶ d) (x : P⁻¹ c) := Nonempty (CoCartLift (P:= P) f x)
 
 end CartLift
-
-
 
 abbrev Cart ( _ : E ⥤ C) := E
 

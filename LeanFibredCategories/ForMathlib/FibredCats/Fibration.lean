@@ -106,11 +106,21 @@ def equivFiberCatHomBasedLift {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹
 /-- Transporting along the identity morphism creates an isomorphic copy
 of the transported object. -/
 def equivTransportId {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x) ≅ x := by
--- The proof idea: use the fact that vertical cartesian morphisms are isos.
 haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x)) := by
-  simp
+  --simp
   infer_instance
 apply vertCartIso (g:= (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x))
+
+lemma is_iso_gaplift_id_transport {c : C} (x : P⁻¹ c) : IsIso (gaplift' (BasedLift.id x) (𝟙 c) (basedLift (𝟙 c) x) (comp_id (𝟙 c)).symm ).hom := by
+  have H : (gaplift' (BasedLift.id x) (𝟙 c) (basedLift (𝟙 c) x) (comp_id (𝟙 c)).symm ).hom = (basedLift (𝟙 c) x).hom := by
+    simp [gaplift']; rfl
+  haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x)) := by
+    simp
+    infer_instance
+  haveI: IsIso (vertCartIso (g:= (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x))).hom := by infer_instance
+  simp only [vertCartIso] at this
+  rw [H]
+
 
 --set_option trace.Meta.synthInstance true in
 -- @[simp]
@@ -124,14 +134,16 @@ apply vertCartIso (g:= (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x))
 --     --rw [← cast_hom (h:= (id_comp (𝟙 x)).symm)];  --apply comp_hom_aux.mp;
 --   inv_hom_id := sorry
 
-#exit
-
 @[simp]
-lemma transport_comp {c d₁ d₂ : C} {f₁ : c ⟶ d₁} {f₂ : d₁ ⟶ d₂} {y : P⁻¹ d₂} : ((f₁ ≫ f₂) ⋆ y) ≅ f₁ ⋆ (f₂ ⋆ y) where
-  hom := gaplift (basedLiftOf f₁ (f₂ ⋆ y)) (𝟙 c) (castIdComp.invFun  (gaplift (basedLiftOf f₂ y) f₁ (basedLiftOf (f₁ ≫ f₂) y)))
-  inv := gaplift (basedLiftOf (f₁ ≫ f₂) y) (𝟙 c) (castIdComp.invFun ((basedLiftOf f₁ (f₂ ⋆ y)) ≫[l] (basedLiftOf f₂ y)))
-  hom_inv_id := by simp; rw [← comp_hom _ _, ← id_hom]; congr; simp; sorry --aesop--apply gaplift_uniq' (BasedLiftOf f₁ (f₂ ⋆ y)) _
-  inv_hom_id := sorry
+lemma transport_comp {c d₁ d₂ : C} {f₁ : c ⟶ d₁} {f₂ : d₁ ⟶ d₂} {y : P⁻¹ d₂} : ((f₁ ≫ f₂) ⋆ y) ≅ f₁ ⋆ (f₂ ⋆ y) := by
+  apply vertCartIso (g:= (basedLift (f₁ ≫ f₂) y : (f₁ ≫ f₂) ⋆ y ⟶ y))
+
+-- @[simp]
+-- lemma transport_comp {c d₁ d₂ : C} {f₁ : c ⟶ d₁} {f₂ : d₁ ⟶ d₂} {y : P⁻¹ d₂} : ((f₁ ≫ f₂) ⋆ y) ≅ f₁ ⋆ (f₂ ⋆ y) where
+--   hom := gaplift (basedLift f₁ (f₂ ⋆ y)) (𝟙 c) (castIdComp.invFun  (gaplift (basedLift f₂ y) f₁ (basedLift (f₁ ≫ f₂) y)))
+--   inv := gaplift (basedLift (f₁ ≫ f₂) y) (𝟙 c) (castIdComp.invFun ((basedLift f₁ (f₂ ⋆ y)) ≫[l] (basedLift f₂ y)))
+--   hom_inv_id := by simp; rw [← comp_hom _ _, ← id_hom]; congr; simp; sorry --aesop--apply gaplift_uniq' (BasedLiftOf f₁ (f₂ ⋆ y)) _
+--   inv_hom_id := sorry
 
 end ClovenFibration
 
