@@ -6,6 +6,8 @@ Authors: Sina Hazratpour
 
 import Mathlib.Tactic.Basic
 import Mathlib.Data.Subtype
+import Mathlib.Logic.Equiv.Basic
+import Mathlib.CategoryTheory.Category.Cat
 
 /-!
 # Fiber
@@ -60,6 +62,13 @@ simp
 
 lemma cast_coe_tauto' (e : Fiber P c) : (tauto e.1) = cast e (by simp [over]) := by
 simp
+
+def equivCompSigma {C E F : Type*} (P : E → C) (Q : F → E) (c : C) :
+(Fiber (P ∘ Q) c) ≃ (x : Fiber P c) × Fiber Q (x.1)  where
+  toFun := fun x => ⟨⟨Q x.1, x.2⟩ , _ ⟩
+  invFun := _
+  left_inv := _
+  right_inv := _
 
 /-- The total space of a map. -/
 @[ext]

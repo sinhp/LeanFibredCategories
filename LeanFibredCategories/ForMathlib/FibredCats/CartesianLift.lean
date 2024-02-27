@@ -153,9 +153,19 @@ lemma tauto_comp_hom {e e' e'' : E} {g : e ⟶ e'} {g' : e' ⟶ e''} : (tauto (P
 
 lemma comp_tauto_hom {x y z : E} {f : P.obj x ⟶ P.obj y} {l : Fiber.tauto x ⟶[f] (Fiber.tauto y)} {g : y ⟶ z} : (l ≫[l] tauto g).hom = l.hom ≫ g := rfl
 
+example {E : X → Type*} {x y : X} (h : x = y) : E x → E y := fun e => h ▸ e
+
+
+@[simp]
+def cast' {c d : C} {f f' : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (h : f = f') (g : x ⟶[f] y) :
+ x ⟶[f'] y := h ▸ g
+
 @[simps!]
 def cast {c d : C} {f f' : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (h : f = f') (g : x ⟶[f] y) :
  x ⟶[f'] y := ⟨g.hom, by rw [←h, g.over]⟩
+
+example {c d : C} {f f' : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (h : f = f') (g : x ⟶[f] y) : g.cast h = g.cast' h := by
+  ext; simp only [cast_hom, cast']; subst h; rfl
 
 /-- Casting a based-lift along an equality of the base morphisms induces an equivalence of the based-lifts. -/
 @[simps!]

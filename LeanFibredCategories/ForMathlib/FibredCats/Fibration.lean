@@ -58,7 +58,6 @@ example (f : c ⟶ d) (g : d ⟶ e) (y : P⁻¹ e) : f ⋆ g ⋆ y = f ⋆ (g �
 def Transport (f : c ⟶ d) : (P⁻¹ d) → (P⁻¹ c) := fun y ↦ f ⋆ y
 
 /-- The lift of a morphism `f` ending at `y`. -/
---@[simp]
 def basedLift (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y) ⟶[f] y := (lift f y).based_lift
 
 /-- The lift `(f ⋆ y) ⟶[f] y` is cartesian. -/
@@ -102,13 +101,11 @@ def equivFiberCatHomBasedLift {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹
 --   inv := equivFiberCatHomBasedLift (id x)
 --   hom_inv_id := by ext;
 --   inv_hom_id := _
-
+#check equivFiberHomBasedLift.right_inv
 /-- Transporting along the identity morphism creates an isomorphic copy
 of the transported object. -/
 def equivTransportId {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x) ≅ x := by
-haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x)) := by
-  --simp
-  infer_instance
+haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x)) := by simp only [equivFiberHomBasedLift.right_inv]; infer_instance
 apply vertCartIso (g:= (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x))
 
 lemma is_iso_gaplift_id_transport {c : C} (x : P⁻¹ c) : IsIso (gaplift' (BasedLift.id x) (𝟙 c) (basedLift (𝟙 c) x) (comp_id (𝟙 c)).symm ).hom := by
@@ -144,6 +141,24 @@ lemma transport_comp {c d₁ d₂ : C} {f₁ : c ⟶ d₁} {f₂ : d₁ ⟶ d₂
 --   inv := gaplift (basedLift (f₁ ≫ f₂) y) (𝟙 c) (castIdComp.invFun ((basedLift f₁ (f₂ ⋆ y)) ≫[l] (basedLift f₂ y)))
 --   hom_inv_id := by simp; rw [← comp_hom _ _, ← id_hom]; congr; simp; sorry --aesop--apply gaplift_uniq' (BasedLiftOf f₁ (f₂ ⋆ y)) _
 --   inv_hom_id := sorry
+
+variable {F : Type*} [Category F]
+
+/-- The composition of two cloven fibrations is a cloven fibration. -/
+instance compInst (P : E ⥤ C) [ClovenFibration P] (Q : F ⥤ E) [ClovenFibration Q] : ClovenFibration (Q ⋙ P) where
+  lift := @fun c d f z => by
+    have : P.obj (Q.obj z) = d := by simp only [← Functor.comp_obj, z.over]
+    let y : P ⁻¹ d := ⟨Q.obj z, this⟩
+    let g := lift f y
+    haveI : Cartesian g.based_lift := by exact g.is_cart
+    let z' : Q⁻¹ (y.1) := Fiber.tauto (P:= Q.obj) z.1
+    let k := lift (P:= Q) g.based_lift.hom z'
+    exact {
+      src := k.src
+      based_lift := _
+      is_cart := _
+    }
+
 
 end ClovenFibration
 
