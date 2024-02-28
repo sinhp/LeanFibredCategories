@@ -28,10 +28,21 @@ variable {C E : Type*} [Category C] [Category E]
 
 /-- A Cloven fibration provides for every morphism `c ⟶ d` in the base and `y : P⁻¹ d` a cartesian lift in the total category. -/
 class ClovenFibration (P : E ⥤ C) where
+/-- A lift function which assigns to a morphism `f` and an
+object in the fiber -/
 lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : CartLift (P:= P) f y
 
 class Fibration (P : E ⥤ C) where
 lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : HasCartLift (P:= P) f y
+
+section
+variable {C E : Type*} [Category C] [Category E] (P : E ⥤ C) [ClovenFibration P] {c d : C} (f : c ⟶ d) (y : P⁻¹ d) (g : CartLift f y)
+#check Fibration.lift
+#check g.1
+#check g.1.based_lift
+#check g.based_lift.hom
+end
+
 
 class Transport (P : E ⥤ C) where
   transport {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : P⁻¹ c
@@ -68,7 +79,7 @@ instance instCartesianBasedLift {f : c ⟶ d} {y : P⁻¹ d} : Cartesian (basedL
 def basedLiftHom (f : c ⟶ d) (y : P⁻¹ d) : (f ⋆ y : E) ⟶ (y : E) := (lift f y).based_lift.hom
 
 @[simp]
-lemma homOf_over (f : c ⟶ d) (y : P⁻¹ d) :
+lemma basedLiftHom_over (f : c ⟶ d) (y : P⁻¹ d) :
 P.map (basedLiftHom f y) =
 (eqToHom (transport_over (P:= P) f y)) ≫ f ≫ eqToHom ((Fiber.over y).symm) := by
   simp only [Fiber.mk_coe, basedLiftHom, BasedLift.over_base]
@@ -101,11 +112,11 @@ def equivFiberCatHomBasedLift {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹
 --   inv := equivFiberCatHomBasedLift (id x)
 --   hom_inv_id := by ext;
 --   inv_hom_id := _
-#check equivFiberHomBasedLift.right_inv
+
 /-- Transporting along the identity morphism creates an isomorphic copy
 of the transported object. -/
 def equivTransportId {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x) ≅ x := by
-haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x)) := by simp only [equivFiberHomBasedLift.right_inv]; infer_instance
+haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x)) := by sorry --simp only [equivFiberHomBasedLift.right_inv]; infer_instance
 apply vertCartIso (g:= (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x))
 
 lemma is_iso_gaplift_id_transport {c : C} (x : P⁻¹ c) : IsIso (gaplift' (BasedLift.id x) (𝟙 c) (basedLift (𝟙 c) x) (comp_id (𝟙 c)).symm ).hom := by
@@ -113,10 +124,12 @@ lemma is_iso_gaplift_id_transport {c : C} (x : P⁻¹ c) : IsIso (gaplift' (Base
     simp [gaplift']; rfl
   haveI : Cartesian (basedLiftOfFiberHom (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x)) := by
     simp
-    infer_instance
+    --infer_instance
+    sorry
   haveI: IsIso (vertCartIso (g:= (basedLift (𝟙 c) x : (𝟙 c) ⋆ x ⟶ x))).hom := by infer_instance
   simp only [vertCartIso] at this
   rw [H]
+  sorry
 
 
 --set_option trace.Meta.synthInstance true in
@@ -154,11 +167,10 @@ instance compInst (P : E ⥤ C) [ClovenFibration P] (Q : F ⥤ E) [ClovenFibrati
     let z' : Q⁻¹ (y.1) := Fiber.tauto (P:= Q.obj) z.1
     let k := lift (P:= Q) g.based_lift.hom z'
     exact {
-      src := k.src
-      based_lift := _
-      is_cart := _
+      src := sorry
+      based_lift := sorry
+      is_cart := sorry
     }
-
 
 end ClovenFibration
 
@@ -166,7 +178,7 @@ open ClovenFibration
 
 class SplitFibration (P : E ⥤ C) extends ClovenFibration P where
 transport_id_obj {c : C} (x : P⁻¹ c) : ((𝟙 c) ⋆ x).1 = x.1
-transport_id_hom {c : C} (x : P⁻¹ c) : homOf (𝟙 c) x = eqToHom (transport_id_obj x) ≫ 𝟙 (x.1)
+transport_id_hom {c : C} (x : P⁻¹ c) : basedLiftHom (𝟙 c) x = eqToHom (transport_id_obj x) ≫ 𝟙 (x.1)
 transport_comp_obj {c d₁ d₂ : C} (f₁ : c ⟶ d₁) (f₂ : d₁ ⟶ d₂) (x : P⁻¹ d₂) : ((f₁ ≫ f₂) ⋆ x).1 = (f₁ ⋆ (f₂ ⋆ x)).1
 lift_comp_hom {c d e : C} (f₁ : c ⟶ d) (f₂ : d ⟶ d') (x : P⁻¹ d') :
-homOf (f₁ ≫ f₂) x = homOf f₁ (f₂ ⋆ y) ≫ (homOf f₂ x)
+basedLiftHom (f₁ ≫ f₂) x = eqToHom (transport_comp_obj f₁ f₂ x) ≫ basedLiftHom f₁ (f₂ ⋆ x) ≫ (basedLiftHom f₂ x)

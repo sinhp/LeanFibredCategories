@@ -63,12 +63,15 @@ simp
 lemma cast_coe_tauto' (e : Fiber P c) : (tauto e.1) = cast e (by simp [over]) := by
 simp
 
+@[simps!]
 def equivCompSigma {C E F : Type*} (P : E → C) (Q : F → E) (c : C) :
-(Fiber (P ∘ Q) c) ≃ (x : Fiber P c) × Fiber Q (x.1)  where
-  toFun := fun x => ⟨⟨Q x.1, x.2⟩ , _ ⟩
-  invFun := _
-  left_inv := _
-  right_inv := _
+(Fiber (P ∘ Q) c) ≃ (t : Fiber P c) × Fiber Q (t.1)  where
+  toFun := fun x => ⟨⟨Q x.1 , x.2⟩ , x.1⟩
+  invFun := fun x => ⟨x.2 , by dsimp; rw [x.2.over, x.1.over]⟩
+  left_inv := by
+    intro x
+    simp_all only [Fiber, Function.comp_apply, tauto, Subtype.coe_eta]
+  right_inv := by intro x; ext; simp [over]; rfl
 
 /-- The total space of a map. -/
 @[ext]

@@ -33,9 +33,9 @@ We provide various useful constructors:
 There are also typeclasses `BasedLift.Cartesian` and `BasedLift.CoCartesian`
 carrying data witnessing that a given based-lift is cartesian and cocartesian, respectively.
 
-For a functor `P : E ⥤ C`, we provide the class `CartMor` of cartesian morphisms in `E`. The type `CartMor P`is defined in terms of the predicate `isCartesianMorphism`.
+For a functor `P : E ⥤ C`, we provide the class `CartMor` of cartesian morphisms in `E`. The type `CartMor P` is defined in terms of the predicate `isCartesianMorphism`.
 
-We prove the following closrue properties of the class `CartMor` of cartesian morphisms:
+We prove the following closure properties of the class `CartMor` of cartesian morphisms:
 - `cart_id` proves that the identity morphism is cartesian.
 - `cart_comp` proves that the composition of cartesian morphisms is cartesian.
 - `cart_iso_closed` proves that the class of cartesian morphisms is closed under isomorphisms.
@@ -294,7 +294,7 @@ morphism `u` in the base and every lift `g' : x ⟶[u ≫ f] z` over the composi
  `l ≫ g = g'`. -/
 class Cartesian {P : E ⥤ C} {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) where
 uniq_lift : ∀ ⦃c' : C⦄ ⦃z : P⁻¹ c'⦄ (u : c' ⟶ c) (g' : z ⟶[u ≫ f]  y),
-Unique {l :  z ⟶[u] x // (BasedLift.comp l g) = g'}
+Unique {k : z ⟶[u] x // (k ≫[l] g) = g'}
 
 /-- A morphism `g : x ⟶[f] y` over `f` is cocartesian if for all morphisms `u` in the base and `g' : x ⟶[f ≫ u] z` over the composite `f ≫ u`, there is a unique morphism `l : y ⟶[u] z` over `u` such that `g ≫ l = g'`. -/
 class CoCartesian {P : E ⥤ C} {c d : C} {f : c ⟶ d} {x : P⁻¹ c} {y : P⁻¹ d} (g : x ⟶[f] y) where

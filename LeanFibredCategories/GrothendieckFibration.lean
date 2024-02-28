@@ -160,7 +160,7 @@ def FibCatGrothendieckIso (c : C) : ((Grothendieck.forget F)⁻¹ c) ≅ F.obj c
   inv_hom_id := by rfl
 
 /-- The projection functor of a Grothendieck construction is a cloven Grothendieck Fibration. -/
-instance ClovenOfGrothendieckConstruction : CovCloven (Grothendieck.forget F) where
+instance ClovenOfGrothendieckConstruction : ClovenFibration (Grothendieck.forget F) where
   lift := fun c d f x ↦ {
     tgt :=  x |> (FibGrothendieckIso F c).hom |> (F.map f).obj |> (FibGrothendieckIso F d).inv
     hom := sorry
@@ -222,9 +222,12 @@ lemma isCartesianTransportHom (f : c ⟶ d) (x : P⁻¹ c) : isCartesianMorphism
 
 
 /-- Homomorphism of Grothendieck fibrations. -/
-structure CartesianHom {E F : Type*} [Category E] [Category F] (P : E ⥤ C) (Q : F ⥤ C) [isCovFibration P] [isCovFibration Q]  where
+structure CartesianHom {E F : Type*} [Category E] [Category F] (P : E ⥤ C) (Q : F ⥤ C) [Fibration P] [Fibration Q]  where
 obj (c : C) : (P⁻¹ c) → (Q⁻¹ c)
 map {c d : C} (f : c ⟶ d) {x : (P⁻¹ c)} {y : (P⁻¹ d)} (g : CartBasedLift P f x y) : CartBasedLift Q f (obj c x) (obj d y)
+-- G : E  ⥤ F
+-- over : G ⋙ Q = P
+
 
 -- #check PseudoFunctor
 
