@@ -42,7 +42,7 @@ comp_id_over {c₁ c₂ : C} {f : c₁ ⟶ c₂} {x₁ : obj_over c₁} {x₂ : 
 variable (C : Type u₁) (E : Type u₂) [Category.{v₁} C] [Category.{v₂} E]
 
 /-- The display category `Display P` associated to a functor `P : E ⥤ C`. -/
-instance DisplayOfFunctor (P : E ⥤ C) : DisplayStruct C where
+instance instDisplayOfFunctor (P : E ⥤ C) : DisplayStruct C where
   obj_over c := P⁻¹ c
   hom_over f x y := x ⟶[f] y
   id_over x := BasedLift.id x

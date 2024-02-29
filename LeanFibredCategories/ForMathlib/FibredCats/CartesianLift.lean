@@ -74,12 +74,21 @@ notation x " ⟶[" f "] " y => BasedLift (P:= _) f x y
 
 end BasedLiftNotation
 
-/-- A lift of a morphism in the base with a fixed target in the fiber of
-the codomain -/
+/-- The type `Lift P f tgt` of lifts of `f` with target `tgt` consists of an object in the fiber of the domain of `f` and a based-lift
+of `f` starting at this object and ending at `tgt`. -/
 @[ext]
 structure Lift (P : E ⥤ C) {c d : C} (f : c ⟶ d) (tgt : P⁻¹ d) where
 src : P⁻¹ c
 based_lift : BasedLift P f src tgt
+
+
+/-- The type `wLift P f tgt` of weak lifts of `f : c ⟶ d` with target `tgt` consists of an object `base_iso_obj` in the base category isomorphic to `c`, an object `src` in the fiber of `base_iso_obj` and a based-lift of `base_iso.hom ≫ f`. -/
+@[ext]
+structure WLift (P : E ⥤ C) {c d : C} (f : c ⟶ d) (tgt : P⁻¹ d) where
+base_iso_obj : C
+base_iso : base_iso_obj ≅ c
+src : P⁻¹ base_iso_obj
+based_lift : BasedLift P (base_iso.hom ≫ f) src tgt
 
 /-- A lift of a morphism in the base with a fixed source in the fiber of
 the domain -/
