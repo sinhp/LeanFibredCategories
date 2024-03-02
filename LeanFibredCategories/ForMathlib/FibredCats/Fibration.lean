@@ -158,7 +158,7 @@ lemma transport_comp {c d₁ d₂ : C} {f₁ : c ⟶ d₁} {f₂ : d₁ ⟶ d₂
 variable {F : Type*} [Category F]
 
 /-- The composition of two cloven fibrations is a cloven fibration. -/
-instance compInst (P : E ⥤ C) [ClovenFibration P] (Q : F ⥤ E) [ClovenFibration Q] : ClovenFibration (Q ⋙ P) where
+instance instComp (P : E ⥤ C) [ClovenFibration P] (Q : F ⥤ E) [ClovenFibration Q] : ClovenFibration (Q ⋙ P) where
   lift := @fun c d f z => by
     have : P.obj (Q.obj z) = d := by simp only [← Functor.comp_obj, z.over]
     let y : P ⁻¹ d := ⟨Q.obj z, this⟩
