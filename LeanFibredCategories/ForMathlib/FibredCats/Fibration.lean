@@ -32,6 +32,9 @@ class ClovenFibration (P : E ⥤ C) where
 object in the fiber -/
 lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : CartLift (P:= P) f y
 
+class ClovenwFibration (P : E ⥤ C) where
+
+
 class Fibration (P : E ⥤ C) where
 lift {c d : C} (f : c ⟶ d) (y : P⁻¹ d) : HasCartLift (P:= P) f y
 
